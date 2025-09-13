@@ -1,7 +1,7 @@
 baseURL = "https://xinlee0113.github.io/"
 languageCode = "zh-cn"
 title = "我的个人博客"
-theme = "hugo-book"
+theme = "simple"
 
 # Book configuration
 disablePathToLower = true
@@ -23,7 +23,7 @@ enableGitInfo = true
   BookToC = true
   
   # Specify root page to render child pages as menu
-  BookSection = 'posts'
+  BookSection = 'docs'
   
   # Enable search function
   BookSearch = true

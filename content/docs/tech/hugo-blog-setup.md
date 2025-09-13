@@ -1,11 +1,16 @@
 ---
-title: "我的第一篇文章"
+title: "Hugo博客搭建完整指南"
+weight: 1
 date: 2025-09-13T08:05:08+08:00
 draft: false
-tags: ["Hugo", "博客", "开始"]
-categories: ["技术分享"]
-author: "博主"
-description: "这是我使用Hugo创建的第一篇博客文章"
+bookFlatSection: false
+bookToc: true
+bookHidden: false
+bookCollapseSection: false
+bookComments: true
+bookSearchExclude: false
+tags: ["Hugo", "博客", "静态网站"]
+description: "从零开始搭建Hugo博客的完整教程"
 ---
 
 # 欢迎来到我的Hugo博客！
