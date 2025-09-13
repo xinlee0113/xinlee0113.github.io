@@ -13,9 +13,7 @@
   {{- with (.Page.Resources.Get $path) -}}
     {{- $destination = .RelPermalink -}}
     {{- $found = true -}}
-  {{- end -}}
-  
-  {{- if not $found -}}
+  {{- else -}}
     {{- with (resources.Get $path) -}}
       {{- $destination = .RelPermalink -}}
       {{- $found = true -}}
