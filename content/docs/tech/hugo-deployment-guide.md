@@ -252,7 +252,7 @@ jobs:
     permissions:
       contents: write
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: "$&#123;&#123; github.workflow &#125;&#125;-$&#123;&#123; github.ref &#125;&#125;"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -270,9 +270,9 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: $&#123;&#123; github.ref == 'refs/heads/main' &#125;&#125;
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;
           publish_dir: ./public
 ```
 
