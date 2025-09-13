@@ -1,0 +1,30 @@
+{{ define "main" }}
+<div class="homepage">
+    {{ if .Site.Params.description }}
+    <p>{{ .Site.Params.description }}</p>
+    {{ end }}
+    
+    <h2>最新文章</h2>
+    
+    {{ if .Site.RegularPages }}
+    <ul class="post-list">
+        {{ range first 10 (where .Site.RegularPages "Section" "post") }}
+        <li>
+            <h3 class="post-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+            <div class="post-meta">
+                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年01月02日" }}</time>
+                {{ if .Params.tags }}
+                | 标签: {{ delimit .Params.tags ", " }}
+                {{ end }}
+            </div>
+            {{ if .Summary }}
+            <div class="post-summary">{{ .Summary }}</div>
+            {{ end }}
+        </li>
+        {{ end }}
+    </ul>
+    {{ else }}
+    <p>还没有文章，<a href="/post/">开始写作</a>吧！</p>
+    {{ end }}
+</div>
+{{ end }}

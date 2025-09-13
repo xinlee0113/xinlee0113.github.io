@@ -1,0 +1,35 @@
+baseURL = "https://xinlee0113.github.io/"
+languageCode = "zh-cn"
+title = "我的个人博客"
+theme = "hugo-book"
+
+# Book configuration
+disablePathToLower = true
+enableGitInfo = true
+
+# Needed for mermaid/katex shortcodes
+[markup]
+[markup.goldmark.renderer]
+  unsafe = true
+
+[markup.tableOfContents]
+  startLevel = 1
+
+[params]
+  # Sets color theme: light, dark or auto
+  BookTheme = 'auto'
+  
+  # Controls table of contents visibility
+  BookToC = true
+  
+  # Specify root page to render child pages as menu
+  BookSection = 'posts'
+  
+  # Enable search function
+  BookSearch = true
+  
+  # Enable comments
+  BookComments = false
+  
+  # Date format
+  BookDateFormat = '2006年1月2日'
