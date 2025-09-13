@@ -3,6 +3,10 @@ languageCode = "zh-cn"
 title = "我的个人博客"
 theme = "hugo-book"
 
+# Hugo configuration
+defaultContentLanguage = "zh"
+hasCJKLanguage = true
+
 # Book configuration
 disablePathToLower = true
 enableGitInfo = true
@@ -33,3 +37,6 @@ enableGitInfo = true
   
   # Date format
   BookDateFormat = '2006年1月2日'
+  
+  # Book homepage redirect
+  BookPortableLinks = true

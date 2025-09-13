@@ -1,6 +1,5 @@
 ---
 title: "我的个人博客"
-type: docs
 bookToc: false
 bookComments: false
 ---
