@@ -15,9 +15,9 @@ bookSearchExclude: false
 
 ## 🚀 快速导航
 
-- [技术分享]({{< relref "/docs/tech" >}})
-- [学习笔记]({{< relref "/docs/notes" >}})
-- [项目记录]({{< relref "/docs/projects" >}})
+- [技术分享](/docs/tech/)
+- [学习笔记](/docs/notes/)
+- [项目记录](/docs/projects/)
 
 ## 📖 关于本站
 
