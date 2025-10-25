@@ -157,7 +157,65 @@ blockquote {
   margin-top: 0;
 }
 
-/* 响应式调整 */
+/* ===== 宽屏布局优化 ===== */
+
+/* 增加主内容区域最大宽度 */
+.main-content {
+  max-width: 1400px !important;  /* 从默认的800px增加到1400px */
+}
+
+/* 超宽屏优化（>1920px） */
+@media (min-width: 1920px) {
+  .main-content {
+    max-width: 1600px !important;
+  }
+}
+
+/* 大屏优化（1440px-1920px） */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .main-content {
+    max-width: 1400px !important;
+  }
+}
+
+/* 标准宽屏（1200px-1440px） */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .main-content {
+    max-width: 1200px !important;
+  }
+}
+
+/* 侧边栏宽度优化 */
+@media (min-width: 50rem) {
+  .side-bar {
+    width: 280px !important;  /* 从默认的248px增加到280px */
+  }
+  
+  .main {
+    margin-left: 280px !important;
+  }
+}
+
+/* 代码块在宽屏下不换行，使用滚动条 */
+@media (min-width: 1200px) {
+  pre.highlight {
+    overflow-x: auto;
+  }
+  
+  /* 表格在宽屏下可以更宽 */
+  table {
+    width: 100%;
+  }
+}
+
+/* PlantUML图表在宽屏下居中显示，但不过大 */
+@media (min-width: 1200px) {
+  .plantuml-diagram {
+    max-width: 90%;
+  }
+}
+
+/* 响应式调整 - 移动端 */
 @media (max-width: 768px) {
   .plantuml-diagram {
     margin: 10px auto;
@@ -239,4 +297,5 @@ blockquote {
 #back-to-top:hover {
   background-color: #0256c2;
 }
+
 
