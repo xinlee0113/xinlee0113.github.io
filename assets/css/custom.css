@@ -157,7 +157,7 @@ blockquote {
   margin-top: 0;
 }
 
-/* ===== 宽屏布局优化 ===== */
+/* ===== 完全响应式宽屏布局 - 零硬编码 ===== */
 
 /* 防止水平滚动 */
 html,
@@ -166,7 +166,24 @@ body {
   max-width: 100vw !important;
 }
 
-/* 增加主内容区域最大宽度 - 使用更强的选择器覆盖主题默认值 */
+/* 侧边栏响应式宽度：15-20vw，最大不超过320px */
+@media (min-width: 50rem) {
+  .side-bar {
+    width: clamp(15vw, 18vw, 320px) !important;
+    min-width: 240px !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+/* 主内容区域左边距等于侧边栏宽度 */
+@media (min-width: 50rem) {
+  .main {
+    margin-left: clamp(15vw, 18vw, 320px) !important;
+    max-width: none !important;
+  }
+}
+
+/* 移除主题默认的max-width限制 */
 .site-header + .site-nav + .main .main-content-wrap,
 .site-header + .site-nav + .main .main-content,
 .main .main-content-wrap,
@@ -176,72 +193,22 @@ body {
 #main-content,
 div.main-content,
 div.main-content-wrap {
-  max-width: none !important;  /* 移除默认限制 */
-}
-
-/* 确保main容器占满 */
-.main,
-main.main {
   max-width: none !important;
-  /* width: 100% 会导致与margin-left冲突，移除此行让浏览器自动计算 */
 }
 
-/* 内容区域基础样式 */
+/* 内容区域自适应，使用视口相对单位 */
 .main-content,
 #main-content {
   width: 100% !important;
-  padding-left: 3rem !important;
-  padding-right: 3rem !important;
+  max-width: none !important;
+  padding-left: clamp(1rem, 2.5vw, 3rem) !important;
+  padding-right: clamp(1rem, 2.5vw, 3rem) !important;
   box-sizing: border-box !important;
 }
 
-/* 超宽屏优化（>1920px） */
-@media (min-width: 1920px) {
-  .main-content {
-    max-width: 1800px !important;
-    margin: 0 auto !important;
-  }
-}
-
-/* 大屏优化（1440px-1920px） */
-@media (min-width: 1440px) and (max-width: 1919px) {
-  .main-content {
-    max-width: 1500px !important;
-    margin: 0 auto !important;
-  }
-}
-
-/* 标准宽屏（1200px-1440px） */
-@media (min-width: 1200px) and (max-width: 1439px) {
-  .main-content {
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-  }
-}
-
-/* 中等屏幕（1000px-1200px） */
-@media (min-width: 1000px) and (max-width: 1199px) {
-  .main-content {
-    max-width: 1000px !important;
-    margin: 0 auto !important;
-  }
-}
-
-/* 侧边栏宽度优化 */
+/* 内容包装器去除padding */
 @media (min-width: 50rem) {
-  .side-bar {
-    width: 280px !important;  /* 从默认的248px增加到280px */
-    flex: 0 0 280px !important;
-  }
-  
-  .main {
-    margin-left: 280px !important;
-    position: relative !important;
-  }
-  
-  /* 确保内容区域占满剩余空间 */
   .main-content-wrap {
-    max-width: none !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
