@@ -233,7 +233,8 @@ onDestroy --> [*]
 
 ### 常用指令
 
-```plantuml
+**语法说明**（不会渲染）：
+```text
 @startuml        ' 开始
 title 标题       ' 添加标题
 actor 角色       ' 定义角色
