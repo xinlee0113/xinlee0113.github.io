@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-710130 线刷后进入fastboot无法进入开机引导问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-710130 线刷后进入fastboot无法进入开机引导问题分析
 

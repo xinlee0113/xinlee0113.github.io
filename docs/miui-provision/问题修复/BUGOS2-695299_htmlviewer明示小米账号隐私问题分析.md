@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-695299 - com.android.htmlviewer 明示小米账号隐私问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-695299 - com.android.htmlviewer 明示小米账号隐私问题分析
 

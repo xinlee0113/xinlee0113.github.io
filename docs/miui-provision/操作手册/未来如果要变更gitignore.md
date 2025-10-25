@@ -1,8 +1,10 @@
 ---
 layout: default
 title: 取消skip-worktree标记
-parent: MiuiProvision项目文档
+parent: 操作手册
 ---
+
+
 
 如果将来需要提交.gitignore（罕见情况）
 如果未来某天需要修改并提交.gitignore到远程，只需执行：

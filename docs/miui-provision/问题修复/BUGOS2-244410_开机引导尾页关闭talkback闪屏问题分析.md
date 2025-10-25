@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-244410 开机引导尾页关闭talkback闪屏问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-244410 开机引导尾页关闭talkback闪屏问题分析
 

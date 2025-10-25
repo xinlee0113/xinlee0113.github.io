@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGWT-5214 开机向导二维码OPCUST分区测试失败问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGWT-5214 开机向导二维码OPCUST分区测试失败问题分析
 

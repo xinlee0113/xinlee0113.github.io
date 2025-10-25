@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-701008 开机引导激活esim卡返回后闪黑问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-701008 开机引导激活esim卡返回后闪黑问题分析
 

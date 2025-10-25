@@ -1,8 +1,10 @@
 ---
 layout: default
 title: ADB设备自动化调试指南
-parent: MiuiProvision项目文档
+parent: 操作手册
 ---
+
+
 
 # ADB设备自动化调试指南
 

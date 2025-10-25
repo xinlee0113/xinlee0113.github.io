@@ -1,8 +1,10 @@
 ---
 layout: default
 title: DefaultActivity与GlobalDefaultActivity对比总结
-parent: MiuiProvision项目文档
+parent: 模块解析
 ---
+
+
 
 # DefaultActivity与GlobalDefaultActivity对比总结
 

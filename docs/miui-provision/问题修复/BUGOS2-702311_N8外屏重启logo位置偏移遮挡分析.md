@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-702311 N8开机引导外屏重启logo位置偏移遮挡问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-702311 N8开机引导外屏重启logo位置偏移遮挡问题分析
 

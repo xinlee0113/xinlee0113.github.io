@@ -1,8 +1,10 @@
 ---
 layout: default
 title: Framework模块划分与问题归属指南
-parent: MiuiProvision项目文档
+parent: 操作手册
 ---
+
+
 
 # Framework模块划分与问题归属指南
 

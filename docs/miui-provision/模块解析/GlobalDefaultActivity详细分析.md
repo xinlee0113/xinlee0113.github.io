@@ -1,8 +1,10 @@
 ---
 layout: default
 title: GlobalDefaultActivity 详细分析
-parent: MiuiProvision项目文档
+parent: 模块解析
 ---
+
+
 
 # GlobalDefaultActivity 详细分析
 

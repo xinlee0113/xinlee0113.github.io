@@ -1,8 +1,10 @@
 ---
 layout: default
 title: wifi账号密码
-parent: MiuiProvision项目文档
+parent: 流程规范
 ---
+
+
 
 
 账号：v-lixin88

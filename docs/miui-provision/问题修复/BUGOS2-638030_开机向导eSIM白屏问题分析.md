@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-638030：开机向导在keep eSIM + 2 PSIM场景下发生ANR并白屏
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-638030：开机向导在keep eSIM + 2 PSIM场景下发生ANR并白屏
 

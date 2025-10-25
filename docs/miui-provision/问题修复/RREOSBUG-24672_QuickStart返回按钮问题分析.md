@@ -1,8 +1,10 @@
 ---
 layout: default
 title: RREOSBUG-24672 - QuickStart页面返回按钮问题根因分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # RREOSBUG-24672 - QuickStart页面返回按钮问题根因分析
 

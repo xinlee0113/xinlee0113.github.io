@@ -1,8 +1,10 @@
 ---
 layout: default
 title: StartupFragment 动画流程解析
-parent: MiuiProvision项目文档
+parent: 模块解析
 ---
+
+
 
 # StartupFragment 动画流程解析
 

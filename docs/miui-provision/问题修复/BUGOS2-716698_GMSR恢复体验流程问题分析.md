@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-716698 GMSR恢复体验流程问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-716698 GMSR恢复体验流程问题分析
 

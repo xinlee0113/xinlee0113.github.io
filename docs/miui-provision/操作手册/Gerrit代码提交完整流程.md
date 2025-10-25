@@ -1,8 +1,10 @@
 ---
 layout: default
 title: Gerrit代码提交完整流程
-parent: MiuiProvision项目文档
+parent: 操作手册
 ---
+
+
 
 # Gerrit代码提交完整流程
 

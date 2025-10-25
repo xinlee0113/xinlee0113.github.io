@@ -1,8 +1,10 @@
 ---
 layout: default
 title: DefaultActivity 详细分析
-parent: MiuiProvision项目文档
+parent: 模块解析
 ---
+
+
 
 # DefaultActivity 详细分析
 

@@ -1,8 +1,10 @@
 ---
 layout: default
 title: 国际版APK安装问题排查与解决方案
-parent: MiuiProvision项目文档
+parent: 操作手册
 ---
+
+
 
 # 国际版APK安装问题排查与解决方案
 

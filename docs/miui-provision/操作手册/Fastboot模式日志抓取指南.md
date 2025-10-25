@@ -1,8 +1,10 @@
 ---
 layout: default
 title: Fastboot模式日志抓取完整指南
-parent: MiuiProvision项目文档
+parent: 操作手册
 ---
+
+
 
 # Fastboot模式日志抓取完整指南
 

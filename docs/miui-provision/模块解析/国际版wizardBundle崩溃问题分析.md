@@ -1,8 +1,10 @@
 ---
 layout: default
 title: 国际版wizardBundle崩溃问题分析
-parent: MiuiProvision项目文档
+parent: 模块解析
 ---
+
+
 
 # 国际版wizardBundle崩溃问题分析
 

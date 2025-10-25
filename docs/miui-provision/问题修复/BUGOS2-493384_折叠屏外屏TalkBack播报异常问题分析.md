@@ -1,8 +1,10 @@
 ---
 layout: default
 title: BUGOS2-493384 折叠屏外屏TalkBack播报异常问题分析
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # BUGOS2-493384 折叠屏外屏TalkBack播报异常问题分析
 

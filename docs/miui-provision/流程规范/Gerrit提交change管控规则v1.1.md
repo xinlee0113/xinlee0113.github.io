@@ -1,8 +1,10 @@
 ---
 layout: default
 title: Gerrit提交change管控规则v1.1
-parent: MiuiProvision项目文档
+parent: 流程规范
 ---
+
+
 
 Commit Message格式规范
 Commit Message模板

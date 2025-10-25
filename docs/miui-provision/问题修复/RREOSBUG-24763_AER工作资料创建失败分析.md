@@ -1,8 +1,10 @@
 ---
 layout: default
 title: RREOSBUG-24763 - AER流程添加个人账号继续，出现错误页面
-parent: MiuiProvision项目文档
+parent: 问题修复
 ---
+
+
 
 # RREOSBUG-24763 - AER流程添加个人账号继续，出现错误页面
 

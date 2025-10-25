@@ -1,8 +1,10 @@
 ---
 layout: default
 title: ProvisionApplication 核心组件初始化详解
-parent: MiuiProvision项目文档
+parent: 模块解析
 ---
+
+
 
 # ProvisionApplication 核心组件初始化详解
 
