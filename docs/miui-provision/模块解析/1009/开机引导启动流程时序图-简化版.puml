@@ -1,0 +1,258 @@
+@startuml 开机引导启动流程时序图-简化版
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title 开机引导启动流程时序图-简化版\n基于代码分析和ADB抓取数据
+
+participant "System" as System
+participant "ActivityManager" as AM
+participant "DefaultActivity" as DA
+participant "StateMachine" as SM
+participant "PreLoadManager" as PLM
+participant "ProvisionSettingActivity" as PSA
+
+== 系统启动阶段 ==
+System -> AM: 系统启动完成
+AM -> AM: 检查设备配置状态
+alt 设备未配置
+    AM -> DA: 启动DefaultActivity
+    note right: Intent: MAIN + HOME\n启动时间: 123ms
+else 设备已配置
+    AM -> AM: 跳过引导流程
+end
+
+== DefaultActivity初始化 ==
+DA -> DA: onCreate()
+note right: 检查deviceIsProvisioned()\n初始化服务
+DA -> DA: 启动CoverScreenService
+DA -> DA: 注册PageIntercepHelper
+DA -> DA: 发送PROVISION_START_BROADCAST
+
+== 状态机初始化 ==
+DA -> SM: 创建StateMachine
+SM -> SM: init()
+note right: 初始化所有状态\n设置转换关系
+SM -> SM: addState(startupState)
+SM -> SM: addState(languageState)
+SM -> SM: addState(其他状态...)
+
+== 预加载管理器初始化 ==
+DA -> PLM: 初始化PreLoadManager
+PLM -> PLM: 预加载图片资源
+PLM -> PLM: 预加载布局资源
+note right: 预加载后续2个页面\n和前序2个页面的资源
+
+== 状态机启动 ==
+DA -> SM: start(enterCurrent=true)
+SM -> SM: restoreState()
+SM -> SM: mCurrentState.onEnter()
+note right: 当前状态: startupState\n显示启动页面
+
+== 启动页面显示 ==
+SM -> DA: 显示StartupFragment
+DA -> DA: 显示MIUI Logo
+DA -> DA: 播放启动动画
+note right: 使用startup.json动画
+
+== 用户交互流程 ==
+DA -> SM: run(RESULT_OK)
+SM -> SM: transitToNext()
+SM -> SM: getNextAvailableState()
+
+== 语言选择页面 ==
+SM -> DA: 启动LanguagePickerActivity
+DA -> DA: 显示语言选择界面
+DA -> DA: 用户选择语言
+DA -> SM: run(RESULT_OK)
+
+== 地区选择页面 ==
+SM -> SM: transitToNext()
+SM -> DA: 启动LocalePickerActivity
+DA -> DA: 显示地区选择界面
+DA -> DA: 用户选择地区
+DA -> SM: run(RESULT_OK)
+
+== 时区选择页面 ==
+SM -> SM: transitToNext()
+SM -> DA: 启动ZonePickerActivity
+DA -> DA: 显示时区选择界面
+DA -> DA: 用户选择时区
+DA -> SM: run(RESULT_OK)
+
+== 输入法设置页面 ==
+SM -> SM: transitToNext()
+SM -> DA: 启动InputMethodActivity
+DA -> DA: 显示输入法选择界面
+DA -> DA: 用户选择输入法
+DA -> SM: run(RESULT_OK)
+
+== 条件分支判断 ==
+SM -> SM: transitToNext()
+SM -> SM: 检查Utils.isNewGlobalOOBE()
+alt 新版本流程 (国际版 + SDK >= 24)
+    SM -> DA: 直接跳转到条款页面
+    note right: 跳过WiFi和字体设置\n简化流程
+else 旧版本流程
+    SM -> DA: 启动WiFi设置页面
+    DA -> DA: 用户连接WiFi
+    DA -> SM: run(RESULT_OK)
+    SM -> DA: 启动字体大小设置
+    DA -> DA: 用户选择字体大小
+    DA -> SM: run(RESULT_OK)
+end
+
+== 服务条款页面 ==
+SM -> DA: 启动TermsActivity
+DA -> DA: 显示服务条款界面
+DA -> DA: 用户同意条款
+DA -> SM: run(RESULT_OK)
+
+== 条款声明页面 ==
+SM -> SM: transitToNext()
+SM -> DA: 启动TermsAndStatementActivity
+DA -> DA: 显示条款声明界面
+DA -> DA: 用户确认声明
+DA -> SM: run(RESULT_OK)
+
+== MiMover支持检查 ==
+SM -> SM: transitToNext()
+SM -> SM: 检查Utils.supportMiMover()
+alt 支持MiMover
+    SM -> DA: 启动OtherSettingsActivity
+    DA -> DA: 用户完成基础设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动PrivacyCenterActivity
+    DA -> DA: 用户完成隐私设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动MiMoverActivity
+    DA -> DA: 用户完成数据迁移
+    DA -> SM: run(RESULT_OK)
+else 不支持MiMover
+    SM -> DA: 直接跳转到激活页面
+end
+
+== 设备激活页面 ==
+SM -> SM: transitToNext()
+SM -> DA: 启动ActivationActivity
+DA -> DA: 显示设备激活界面
+DA -> DA: 用户完成激活
+DA -> SM: run(RESULT_OK)
+
+== 小米账户激活 ==
+SM -> SM: transitToNext()
+SM -> DA: 启动ActivateDeviceActivity
+DA -> PSA: 启动ProvisionSettingActivity
+note right: 当前显示: ProvisionSettingActivity\n状态: RESUMED
+PSA -> PSA: 显示账户绑定界面
+PSA -> PSA: 用户登录账户
+PSA -> DA: 返回激活结果
+DA -> SM: run(RESULT_OK)
+
+== 流程分支判断 ==
+SM -> SM: 检查Utils.isNewGlobalOOBE()
+alt 新版本流程
+    SM -> DA: 直接跳转到最终步骤
+    note right: 跳过详细设置\n快速完成引导
+else 旧版本流程
+    SM -> DA: 启动多卡设置
+    DA -> DA: 用户完成SIM卡设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动Google账户设置
+    DA -> DA: 用户完成Google设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动小米账户设置
+    DA -> DA: 用户完成小米设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动云备份设置
+    DA -> DA: 用户完成备份设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动云服务设置
+    DA -> DA: 用户完成云服务设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动查找设备设置
+    DA -> DA: 用户完成查找设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动指纹设置
+    DA -> DA: 用户完成指纹设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动AI按键设置
+    DA -> DA: 用户完成AI设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动语音助手设置
+    DA -> DA: 用户完成语音设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动手势教程
+    DA -> DA: 用户完成手势学习
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动其他设置
+    DA -> DA: 用户完成其他设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动隐私中心
+    DA -> DA: 用户完成隐私设置
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动CM条款
+    DA -> DA: 用户同意CM条款
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动CU条款
+    DA -> DA: 用户同意CU条款
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动主题选择
+    DA -> DA: 用户选择主题
+    DA -> SM: run(RESULT_OK)
+    
+    SM -> DA: 启动导航模式选择
+    DA -> DA: 用户选择导航模式
+    DA -> SM: run(RESULT_OK)
+end
+
+== 最终步骤 ==
+SM -> DA: 启动RecentTaskStyleActivity
+DA -> DA: 用户选择任务样式
+DA -> SM: run(RESULT_OK)
+
+alt 折叠屏设备
+    SM -> DA: 启动KindTipActivity
+    DA -> DA: 用户查看提示信息
+    DA -> SM: run(RESULT_OK)
+end
+
+SM -> DA: 启动RecommendedActivity
+DA -> DA: 用户选择推荐应用
+DA -> SM: run(RESULT_OK)
+
+SM -> DA: 启动BootVideoActivity
+DA -> DA: 播放开机引导视频
+DA -> DA: 视频播放完成
+DA -> SM: run(RESULT_OK)
+
+== 引导完成 ==
+SM -> SM: transitToNext()
+SM -> SM: 检查是否为完成状态
+SM -> DA: 设置设备为已配置状态
+DA -> DA: 发送PROVISION_COMPLETE_BROADCAST
+DA -> DA: 启动OemPostActivity
+DA -> DA: 完成引导流程
+note right: 引导流程完成\n设备可正常使用
+
+@enduml
+

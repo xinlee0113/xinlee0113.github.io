@@ -1,0 +1,201 @@
+@startuml 开机引导模块依赖关系图
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam classStyle classDiagram
+skinparam componentStyle rectangle
+
+title 开机引导模块依赖关系图\n基于代码分析
+
+package "核心模块 (Core Modules)" {
+    [ProvisionApplication] as PA
+    [DefaultActivity] as DA
+    [StateMachine] as SM
+    [Utils] as U
+}
+
+package "状态管理模块 (State Management)" {
+    [State] as S
+    [GlobalDefaultActivity] as GDA
+    [GlobalDefaultActivity.StateMachine] as GDSM
+    [SplitAndReorganizedFlow] as SARF
+}
+
+package "预加载模块 (Preload Module)" {
+    [PreLoadManager] as PLM
+    [PreLoadActivityLifeCallback] as PLALC
+    [PreLoadConfig] as PLC
+    [ImagePreLoader] as IPL
+    [LayoutPreLoader] as LPL
+    [LogicLoader] as LL
+    [LanguagePreLoadManager] as LPLM
+}
+
+package "业务逻辑模块 (Business Logic)" {
+    [MccHelper] as MH
+    [OTHelper] as OH
+    [UserManagerHelper] as UMH
+    [ImmersiveUtils] as IU
+    [MediaPlayerPool] as MPP
+    [PageIntercepHelper] as PIH
+}
+
+package "工具模块 (Utility Modules)" {
+    [MisysUtils] as MU
+    [HashUtils] as HU
+    [MD5Utils] as MD5U
+    [BoostHelper] as BH
+    [ParseServiceStatementUtils] as PSSU
+    [CarouselUtils] as CU
+    [RequestUtils] as RU
+    [ShortcutProviderUtils] as SPU
+}
+
+package "BLE通信模块 (BLE Communication)" {
+    [BleUtils] as BU
+    [LogUtils] as LU
+}
+
+package "数据模块 (Data Module)" {
+    [ProvisionProvider] as PP
+    [ProvisionDBHelper] as PDH
+}
+
+package "服务模块 (Service Module)" {
+    [AbnormalBackService] as ABS
+    [CoverScreenService] as CSS
+    [ProvisionBackIconService] as PBIS
+}
+
+package "外部依赖模块 (External Dependencies)" {
+    [LottieCompositionFactory] as LCF
+    [AutoDensityConfig] as ADC
+    [LifecycleHandler] as LH
+    [WizardManagerHelper] as WMH
+    [MiuiDockUtils] as MDU
+    [DeviceLevelUtils] as DLU
+}
+
+' 核心模块依赖关系
+PA --> LH : 生命周期管理
+PA --> ADC : 动态DPI配置
+PA --> U : 全局工具
+PA --> PLM : 预加载管理
+PA --> LPLM : 语言预加载
+PA --> IU : 沉浸式模式
+PA --> MPP : 媒体播放器
+PA --> MH : MCC帮助
+PA --> OH : OTA帮助
+PA --> LCF : 动画预加载
+
+DA --> SM : 状态机控制
+DA --> U : 工具类
+DA --> PIH : 页面拦截
+DA --> UMH : 用户管理
+DA --> MDU : Dock工具
+DA --> ABS : 异常处理服务
+DA --> CSS : 封面服务
+
+SM --> S : 状态管理
+SM --> U : 状态工具
+
+U --> MH : MCC码处理
+U --> OH : OTA处理
+U --> UMH : 用户管理
+U --> IU : 沉浸式模式
+U --> MU : Misys工具
+U --> HU : 哈希工具
+U --> MD5U : MD5工具
+U --> BH : 性能提升
+U --> PSSU : 服务声明
+U --> CU : 轮播工具
+U --> RU : 请求工具
+U --> SPU : 快捷方式
+
+' 状态管理模块依赖关系
+S --> U : 状态工具
+GDA --> GDSM : 全局状态机
+GDA --> U : 全局工具
+SARF --> SM : 状态机
+SARF --> U : 工具类
+
+GDSM --> S : 全局状态管理
+GDSM --> U : 全局状态工具
+
+' 预加载模块依赖关系
+PLM --> IPL : 图片预加载
+PLM --> LPL : 布局预加载
+PLM --> LL : 逻辑预加载
+PLM --> PLC : 预加载配置
+PLM --> DA : Activity管理
+PLM --> GDA : 全局Activity管理
+PLM --> U : 预加载工具
+
+PLALC --> PLM : 预加载触发
+PLALC --> DA : Activity回调
+PLALC --> U : 回调工具
+
+PLC --> U : 配置工具
+IPL --> U : 图片预加载工具
+LPL --> U : 布局预加载工具
+LL --> U : 逻辑预加载工具
+LPLM --> U : 语言预加载工具
+
+' 业务逻辑模块依赖关系
+MH --> U : MCC工具支持
+OH --> U : OTA工具支持
+UMH --> U : 用户管理支持
+IU --> U : 沉浸式支持
+MPP --> U : 媒体播放器支持
+PIH --> U : 页面拦截支持
+
+' 工具模块依赖关系
+MU --> BU : BLE通信
+MU --> U : Misys支持
+HU --> U : 哈希计算支持
+MD5U --> U : MD5计算支持
+BH --> U : 性能优化支持
+PSSU --> U : 服务声明支持
+CU --> U : 轮播功能支持
+RU --> U : 网络请求支持
+SPU --> U : 快捷方式支持
+
+' BLE通信模块依赖关系
+BU --> LU : 日志记录
+BU --> U : BLE工具支持
+LU --> U : 日志工具支持
+
+' 数据模块依赖关系
+PP --> PDH : 数据库操作
+PP --> U : 数据提供工具
+PDH --> U : 数据库工具
+
+' 服务模块依赖关系
+ABS --> U : 异常处理工具
+CSS --> U : 封面服务工具
+PBIS --> U : 后台图标服务工具
+
+' 外部依赖模块关系
+LCF --> PA : 动画预加载支持
+ADC --> PA : 动态DPI支持
+LH --> PA : 生命周期支持
+WMH --> U : 向导管理支持
+MDU --> DA : Dock工具支持
+DLU --> U : 设备级别支持
+
+' 模块间的主要依赖关系
+note top of PA : 应用入口模块\n依赖所有核心模块
+note top of SM : 状态机核心模块\n控制整个流程
+note top of PLM : 预加载管理模块\n性能优化核心
+note top of U : 工具类集合模块\n业务逻辑基础
+note top of PP : 数据提供模块\n数据管理核心
+
+' 依赖关系说明
+note bottom of PA : 核心模块\n所有模块的基础
+note bottom of SM : 状态管理\n流程控制核心
+note bottom of PLM : 预加载\n性能优化关键
+note bottom of U : 工具集合\n业务逻辑基础
+note bottom of PP : 数据管理\n持久化存储
+
+@enduml

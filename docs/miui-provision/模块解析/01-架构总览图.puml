@@ -1,0 +1,443 @@
+@startuml 项目架构总览图
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+
+title MIUI Provision 项目架构总览图
+
+' ===== 分层架构图 =====
+package "分层架构图" {
+    
+    package "表现层 (Presentation Layer)" as L1 {
+        [DefaultActivity] as DA
+        [GlobalDefaultActivity] as GDA
+        [20+ Activities] as ACT
+        [10+ Fragments] as FRG
+        [View Binding] as VB
+    }
+    
+    package "控制层 (Control Layer)" as L2 {
+        [StateMachine] as SM
+        [State Objects] as SO
+        [Flow Control] as FC
+        [Page Interceptor] as PI
+    }
+    
+    package "业务层 (Business Layer)" as L3 {
+        [Utils] as UT
+        [MccHelper] as MH
+        [OTHelper] as OH
+        [UserManagerHelper] as UMH
+        [MediaPlayerPool] as MPP
+    }
+    
+    package "预加载层 (Preload Layer)" as L4 {
+        [PreLoadManager] as PLM
+        [ImagePreLoader] as IPL
+        [LayoutPreLoader] as LPL
+        [LogicLoader] as LL
+        [LanguagePreLoadManager] as LPLM
+    }
+    
+    package "服务层 (Service Layer)" as L5 {
+        [ProvisionAnimService] as PAS
+        [AbnormalBackService] as ABS
+        [CoverScreenService] as CSS
+        [ProvisionBackIconService] as PBIS
+    }
+    
+    package "数据层 (Data Layer)" as L6 {
+        [ProvisionProvider] as PP
+        [ProvisionDBHelper] as PDH
+        [SharedPreferences] as SP
+        [Settings] as SET
+    }
+    
+    package "基础设施层 (Infrastructure Layer)" as L7 {
+        [ProvisionApplication] as PA
+        [System Integration] as SI
+        [Third-party SDK] as SDK
+        [Hardware Abstraction] as HA
+    }
+    
+    ' 分层依赖关系
+    L1 --> L2 : 依赖
+    L2 --> L3 : 依赖
+    L3 --> L4 : 依赖
+    L3 --> L5 : 依赖
+    L3 --> L6 : 依赖
+    L4 --> L7 : 依赖
+    L5 --> L7 : 依赖
+    L6 --> L7 : 依赖
+}
+
+note right of L1 : 用户界面展示和交互
+note right of L2 : 流程控制和状态管理
+note right of L3 : 核心业务逻辑处理
+note right of L4 : 性能优化和资源管理
+note right of L5 : 后台服务处理
+note right of L6 : 数据存储和管理
+note right of L7 : 应用框架和系统集成
+
+@enduml
+
+@startuml 模块依赖关系图
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+
+title MIUI Provision 模块依赖关系图
+
+' ===== 核心模块 =====
+package "核心模块" {
+    [ProvisionApplication] as PA
+    [DefaultActivity] as DA
+    [StateMachine] as SM
+    [PreLoadManager] as PLM
+}
+
+' ===== UI模块 =====
+package "UI模块" {
+    [Activities (20+)] as ACT
+    [Fragments (10+)] as FRG
+    [Custom Views] as CV
+}
+
+' ===== 业务模块 =====
+package "业务模块" {
+    [Utils] as UT
+    [MccHelper] as MH
+    [OTHelper] as OH
+    [UserManagerHelper] as UMH
+    [MediaPlayerPool] as MPP
+    [ImmersiveUtils] as IU
+}
+
+' ===== 预加载模块 =====
+package "预加载模块" {
+    [ImagePreLoader] as IPL
+    [LayoutPreLoader] as LPL
+    [LogicLoader] as LL
+    [LanguagePreLoadManager] as LPLM
+    [PreLoadActivityLifeCallback] as PLALC
+}
+
+' ===== 服务模块 =====
+package "服务模块" {
+    [ProvisionAnimService] as PAS
+    [AbnormalBackService] as ABS
+    [CoverScreenService] as CSS
+    [ProvisionBackIconService] as PBIS
+}
+
+' ===== 数据模块 =====
+package "数据模块" {
+    [ProvisionProvider] as PP
+    [ProvisionDBHelper] as PDH
+    [SharedPreferences] as SP
+}
+
+' ===== 系统集成模块 =====
+package "系统集成" {
+    [IDM SDK] as IDM
+    [MiConnect SDK] as MC
+    [MiBridge] as MB
+    [Lottie] as LT
+}
+
+' 依赖关系
+PA --> PLM : 初始化
+PA --> UT : 使用
+PA --> MPP : 初始化
+PA --> LPLM : 预加载
+
+DA --> SM : 创建和管理
+DA --> PLM : 触发预加载
+DA --> UT : 使用工具类
+
+SM --> ACT : 启动Activity
+SM --> UT : 业务逻辑
+
+PLM --> IPL : 图片预加载
+PLM --> LPL : 布局预加载
+PLM --> LL : 逻辑预加载
+PLM --> PLALC : 生命周期回调
+
+ACT --> FRG : 包含Fragment
+ACT --> CV : 使用自定义View
+
+UT --> MH : MCC处理
+UT --> OH : OTA处理
+UT --> UMH : 用户管理
+
+DA --> PAS : 启动服务
+DA --> ABS : 异常监控
+DA --> CSS : 封面服务
+
+PP --> PDH : 数据库操作
+PP --> SP : 配置存储
+
+PA --> IDM : 设备互联
+PA --> MC : 跨设备连接
+PA --> MB : 数据迁移
+PA --> LT : 动画渲染
+
+note top of PA : 应用入口\n全局初始化
+note top of SM : 状态机核心\n流程控制
+note top of PLM : 预加载管理\n性能优化
+note top of UT : 工具类集合\n业务逻辑
+
+@enduml
+
+@startuml 部署架构图
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+
+title MIUI Provision 部署架构图
+
+' ===== 系统层次 =====
+node "Android System" {
+    
+    package "/system/priv-app/" {
+        folder "Provision/" {
+            artifact "Provision.apk" as APK
+            artifact "lib/" as LIB
+        }
+    }
+    
+    package "System Services" {
+        [PackageManagerService] as PMS
+        [ActivityManagerService] as AMS
+        [AccountManagerService] as ACMS
+        [Settings Provider] as SP
+    }
+    
+    package "System Apps" {
+        [Settings] as SET
+        [Launcher] as LCH
+        [CloudService] as CS
+        [ThemeManager] as TM
+    }
+    
+    database "System Storage" {
+        folder "/data/system/" as DS
+        folder "/data/user/0/" as DU
+    }
+}
+
+' 外部依赖
+cloud "External Services" {
+    [Xiaomi Account] as XA
+    [Cloud Backup] as CB
+    [Find Device] as FD
+}
+
+' 硬件层
+node "Hardware Layer" {
+    [Display] as DISP
+    [Sensors] as SENS
+    [Network] as NET
+    [Storage] as STOR
+}
+
+' 部署关系
+APK --> AMS : 启动请求
+APK --> PMS : 组件管理
+APK --> ACMS : 账号管理
+APK --> SP : 设置读写
+
+APK --> SET : 跳转设置
+APK --> CS : 云服务集成
+APK --> TM : 主题选择
+
+APK --> DS : 系统数据
+APK --> DU : 用户数据
+
+APK --> XA : 账号登录
+APK --> CB : 云备份
+APK --> FD : 查找设备
+
+APK --> DISP : 显示
+APK --> SENS : 传感器
+APK --> NET : 网络
+APK --> STOR : 存储
+
+note top of APK : 系统特权应用\nandroid.uid.system\n优先级1000
+
+note right of PMS : 应用安装和管理
+note right of AMS : Activity生命周期管理
+note right of ACMS : 系统账号管理
+note right of SP : 系统配置存储
+
+note bottom of DS : device_provisioned标志
+note bottom of DU : 用户配置和数据
+
+@enduml
+
+@startuml 启动流程架构图
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+
+title MIUI Provision 启动流程架构图
+
+actor User as U
+participant "System Boot" as SB
+participant "Launcher" as LCH
+participant "ProvisionApplication" as PA
+participant "DefaultActivity" as DA
+participant "StateMachine" as SM
+participant "PreLoadManager" as PLM
+database "Settings" as SET
+
+== 首次开机启动流程 ==
+
+SB -> SET : 检查 device_provisioned
+SET --> SB : device_provisioned = 0
+
+SB -> LCH : 启动 HOME Intent
+LCH -> DA : 启动 Provision\n(优先级1000)
+
+activate DA
+
+DA -> SET : 再次检查 device_provisioned
+SET --> DA : device_provisioned = 0
+
+DA -> PA : 初始化 Application
+activate PA
+PA -> PA : 注册生命周期回调
+PA -> PA : 初始化 AutoDensity
+PA -> PA : 初始化 OTHelper
+PA -> PA : 初始化 MccHelper
+PA -> PA : 初始化 MediaPlayerPool
+PA -> PLM : 初始化 PreLoadManager
+PA -> PA : 预加载 Lottie 动画
+deactivate PA
+
+DA -> SM : 创建 StateMachine
+activate SM
+SM -> SM : 初始化状态列表
+SM -> SM : 设置状态转换规则
+SM -> PLM : 注册 Activity 类
+deactivate SM
+
+DA -> SM : start(enterCurrent)
+SM -> DA : 启动第一个状态页面
+
+DA -> U : 显示欢迎页面
+U -> DA : 用户交互
+
+== 完成引导流程 ==
+
+U -> DA : 完成所有步骤
+DA -> SET : 设置 device_provisioned = 1
+DA -> SB : 发送 PROVISION_COMPLETE 广播
+DA -> DA : finish()
+
+deactivate DA
+
+SB -> LCH : 启动系统桌面
+
+@enduml
+
+@startuml 数据流架构图
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam arrowColor #000000
+skinparam arrowThickness 2
+
+title MIUI Provision 数据流架构图
+
+' ===== 数据输入 =====
+rectangle "数据输入" {
+    [用户输入] as UI
+    [系统配置] as SC
+    [网络数据] as ND
+    [传感器数据] as SD
+}
+
+' ===== 数据处理层 =====
+rectangle "数据处理层" {
+    [Input Validation] as IV
+    [Data Transform] as DT
+    [Business Logic] as BL
+    [State Management] as SM
+}
+
+' ===== 数据存储层 =====
+rectangle "数据存储层" {
+    database "SharedPreferences" as SP {
+        [配置数据] as CFG
+        [临时数据] as TMP
+    }
+    
+    database "Settings Provider" as SET {
+        [系统设置] as SYS
+        [device_provisioned] as DP
+    }
+    
+    database "Provision DB" as PDB {
+        [引导状态] as PS
+        [用户选择] as UC
+    }
+}
+
+' ===== 数据输出 =====
+rectangle "数据输出" {
+    [UI更新] as UO
+    [系统配置] as SCO
+    [广播事件] as BE
+    [服务调用] as SVC
+}
+
+' 数据流向
+UI --> IV : 输入数据
+SC --> IV : 系统配置
+ND --> IV : 网络数据
+SD --> IV : 传感器数据
+
+IV --> DT : 验证后数据
+DT --> BL : 转换后数据
+BL --> SM : 业务处理
+
+SM --> SP : 保存配置
+SM --> SET : 更新系统设置
+SM --> PDB : 保存状态
+
+SP --> BL : 读取配置
+SET --> BL : 读取设置
+PDB --> BL : 读取状态
+
+BL --> UO : 更新界面
+BL --> SCO : 配置系统
+BL --> BE : 发送广播
+BL --> SVC : 调用服务
+
+note right of IV : 数据验证\n格式检查\n权限检查
+note right of BL : 核心业务逻辑\n状态管理\n流程控制
+note right of SP : 轻量级存储\nKey-Value对
+note right of SET : 系统级设置\n全局共享
+note right of PDB : 结构化数据\nSQLite数据库
+
+@enduml
+
