@@ -20,27 +20,49 @@ nav_order: 5
 
 ## PlantUML简介
 
-PlantUML是一个开源工具，使用简单的文本描述来绘制UML图表。本站集成了PlantUML在线渲染功能，您只需编写PlantUML代码，图表会自动生成并显示。
+PlantUML是一个开源工具，使用简单的文本描述来绘制UML图表。本站集成了基于 **Kroki.io** 的PlantUML在线渲染功能，您只需编写PlantUML代码，图表会自动生成并显示。
+
+### 渲染服务
+- **主渲染引擎**: [Kroki.io](https://kroki.io/) - 开源图表渲染服务
+- **编码方式**: Deflate压缩 + PlantUML Base64
+- **支持格式**: SVG（矢量图，可无限缩放）
 
 ---
 
 ## 使用方法
 
-### 方法1：使用图片链接（推荐）
+### 方法1：Markdown代码块（推荐）✅
 
-直接使用PlantUML在线服务器生成的图片链接：
+直接在Markdown中使用 `plantuml` 代码块，**会自动渲染为图表**：
+
+````markdown
+```plantuml
+@startuml
+Alice -> Bob: Hello
+Bob --> Alice: Hi
+@enduml
+```
+````
+
+**优点**：
+- ✅ 自动渲染，无需手动操作
+- ✅ 源代码可见，方便编辑
+- ✅ 支持语法高亮
+- ✅ 失败时显示源代码
+
+### 方法2：使用图片链接（备用）
+
+直接使用图片链接（如果自动渲染失败）：
 
 ```markdown
-![Activity启动流程](http://www.plantuml.com/plantuml/svg/SoWkIImgAStDuNBAJrBGjLDmpCbCJbMmKiX8pSd9vt98pKi1IW80)
+![Activity启动流程](https://kroki.io/plantuml/svg/eNpLzkksLlZwVKhWqOZSUABzFKoVnBSqAYxqLgXIxEKVQi0A7EQJ3g==)
 ```
 
-### 方法2：嵌入PlantUML代码
+### 方法3：使用在线编辑器
 
-在文档中嵌入PlantUML源代码（需要编码）：
-
-```markdown
-![diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/username/repo/main/diagrams/sequence.puml)
-```
+1. 访问 [PlantUML在线编辑器](http://www.plantuml.com/plantuml/)
+2. 编写代码并预览
+3. 复制生成的图片链接到Markdown中
 
 ---
 
@@ -351,4 +373,5 @@ A: 完全支持，直接在PlantUML代码中使用中文即可。
 ---
 
 Happy Diagramming! 🎨
+
 
