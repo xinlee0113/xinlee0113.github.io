@@ -159,6 +159,13 @@ blockquote {
 
 /* ===== 宽屏布局优化 ===== */
 
+/* 防止水平滚动 */
+html,
+body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
 /* 增加主内容区域最大宽度 - 使用更强的选择器覆盖主题默认值 */
 .site-header + .site-nav + .main .main-content-wrap,
 .site-header + .site-nav + .main .main-content,
@@ -176,7 +183,7 @@ div.main-content-wrap {
 .main,
 main.main {
   max-width: none !important;
-  width: 100% !important;
+  /* width: 100% 会导致与margin-left冲突，移除此行让浏览器自动计算 */
 }
 
 /* 内容区域基础样式 */
