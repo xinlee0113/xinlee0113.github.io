@@ -1,0 +1,58 @@
+<!-- PlantUML在线渲染辅助工具 -->
+<script>
+  // PlantUML在线服务器地址
+  const PLANTUML_SERVER = 'http://www.plantuml.com/plantuml/svg/';
+  
+  // 自动渲染页面中的PlantUML代码块
+  document.addEventListener('DOMContentLoaded', function() {
+    // 查找所有标记为plantuml的代码块
+    const plantumlBlocks = document.querySelectorAll('pre.plantuml, code.language-plantuml');
+    
+    plantumlBlocks.forEach(function(block) {
+      const code = block.textContent;
+      
+      // 编码PlantUML代码
+      const encoded = encodePlantUML(code);
+      
+      // 创建图片元素
+      const img = document.createElement('img');
+      img.src = PLANTUML_SERVER + encoded;
+      img.alt = 'PlantUML Diagram';
+      img.className = 'plantuml-diagram';
+      
+      // 替换代码块为图片
+      if (block.tagName === 'PRE') {
+        block.parentNode.replaceChild(img, block);
+      } else {
+        block.parentNode.parentNode.replaceChild(img, block.parentNode);
+      }
+    });
+  });
+  
+  // PlantUML编码函数（简化版）
+  function encodePlantUML(text) {
+    // 使用PlantUML的文本编码方式
+    // 这里使用base64编码作为简化方案
+    return btoa(unescape(encodeURIComponent(text)));
+  }
+</script>
+
+<style>
+  /* PlantUML图表样式 */
+  .plantuml-diagram {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  
+  .plantuml-diagram:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+</style>
+
