@@ -179,6 +179,16 @@ blockquote {
   }
 }
 
+/* 侧边栏左对齐：减少左侧padding */
+.site-title {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+.nav-list-link {
+  padding-left: 16px !important;
+}
+
 /* 代码块使用滚动条 */
 pre.highlight {
   overflow-x: auto;
