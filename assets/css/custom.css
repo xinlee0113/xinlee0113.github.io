@@ -248,6 +248,29 @@ html, body {
   max-width: 100vw !important;
 }
 
+/* 侧边栏：完全左对齐，消除所有左边距（所有屏幕尺寸都生效） */
+.side-bar {
+  left: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* 侧边栏内部所有元素完全左对齐 */
+.side-bar .site-header,
+.side-bar .site-title,
+.side-bar .nav-list,
+.side-bar .nav-list-item,
+.side-bar .nav-list-link {
+  margin-left: 0 !important;
+  padding-left: 0.25rem !important;
+}
+
+.side-bar .site-title {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
 @media (min-width: 50rem) {
   /* 侧边栏：使用clamp实现自适应宽度，随屏幕大小变化 */
   .side-bar {
