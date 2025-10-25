@@ -181,12 +181,12 @@ blockquote {
 
 /* 侧边栏左对齐：减少左侧padding */
 .site-title {
-  padding-left: 16px !important;
-  padding-right: 16px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
 .nav-list-link {
-  padding-left: 16px !important;
+  padding-left: 8px !important;
 }
 
 /* 代码块使用滚动条 */
