@@ -1,7 +1,7 @@
-<!-- PlantUML在线渲染辅助工具 - 使用PlantText.com服务 -->
+<!-- PlantUML在线渲染辅助工具 - 使用Kroki.io服务（支持CORS） -->
 <script>
-  // 使用PlantText.com服务（更稳定，无需复杂编码）
-  const PLANTUML_SERVER = 'https://www.plantuml.com/plantuml/svg/~1';
+  // 使用Kroki.io服务（支持CORS，开源免费）
+  const KROKI_SERVER = 'https://kroki.io';
   
   // 自动渲染页面中的PlantUML代码块
   document.addEventListener('DOMContentLoaded', function() {
@@ -12,8 +12,8 @@
       const code = codeBlock.textContent.trim();
       
       try {
-        // 使用POST方式发送PlantUML代码
-        const response = await fetch('https://www.plantuml.com/plantuml/svg', {
+        // 使用Kroki的POST API（支持CORS）
+        const response = await fetch(`${KROKI_SERVER}/plantuml/svg`, {
           method: 'POST',
           headers: {
             'Content-Type': 'text/plain',
@@ -35,7 +35,8 @@
             pre.parentNode.replaceChild(container, pre);
           }
         } else {
-          throw new Error('PlantUML服务返回错误');
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
         }
       } catch (error) {
         // 如果失败，显示错误信息
@@ -43,12 +44,13 @@
         errorDiv.className = 'plantuml-error';
         errorDiv.innerHTML = `
           <p><strong>⚠️ PlantUML图表渲染失败</strong></p>
-          <details>
+          <details open>
             <summary>查看源代码</summary>
             <pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
           </details>
           <p><small>错误：${error.message}</small></p>
-          <p><small>提示：检查PlantUML语法或网络连接</small></p>
+          <p><small>提示：检查PlantUML语法是否正确，或尝试刷新页面</small></p>
+          <p><small>服务器：<a href="https://kroki.io" target="_blank">Kroki.io</a></small></p>
         `;
         
         const pre = codeBlock.parentNode;
