@@ -160,16 +160,16 @@ blockquote {
 /* ===== 大屏幕优化：侧边栏固定宽度，内容区充分利用空间 ===== */
 
 @media (min-width: 50rem) {
-  /* 侧边栏：固定宽度280px，左移15px消除主题默认偏移 */
+  /* 侧边栏：固定宽度280px，完全贴近左边 */
   .side-bar {
     width: 280px !important;
     max-width: 280px !important;
-    left: -15px !important;
+    left: 0 !important;
   }
   
   /* 主内容区：移除宽度限制，充分利用剩余空间 */
   .main {
-    margin-left: 265px !important;
+    margin-left: 280px !important;
     max-width: none !important;
   }
   
@@ -181,6 +181,11 @@ blockquote {
 }
 
 /* 侧边栏左对齐：完全贴近左边，消除所有左侧空白 */
+.side-bar {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 .site-header,
 .site-title,
 .nav-list,
@@ -189,12 +194,17 @@ blockquote {
 }
 
 .site-title {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+.nav-list {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .nav-list-link {
-  padding-left: 8px !important;
+  padding-left: 4px !important;
 }
 
 /* 代码块使用滚动条 */
