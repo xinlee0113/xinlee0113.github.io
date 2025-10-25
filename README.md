@@ -157,7 +157,7 @@ git push -u origin main
 ```yaml
 title: Android源码学习文档站
 description: Android源码分析、学习笔记、技术文档
-baseurl: "/xinlee0113.github.io"  # 填写仓库名（如果是username.github.io则留空）
+baseurl: ""  # username.github.io格式，必须留空！
 url: "https://xinlee0113.github.io"
 ```
 
