@@ -22,7 +22,61 @@
         });
         
         if (response.ok) {
-          const svgText = await response.text();
+          let svgText = await response.text();
+          
+          // 清理SVG中的错误信息和调试信息
+          // 移除PlantUML版本信息和错误提示框
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = svgText;
+          
+          // 查找SVG元素
+          const svg = tempDiv.querySelector('svg');
+          if (svg) {
+            // 移除包含错误信息的text元素（通常是黑色背景的错误框）
+            const textElements = svg.querySelectorAll('text');
+            textElements.forEach(text => {
+              const content = text.textContent;
+              // 移除版本信息、错误提示等
+              if (content && (
+                content.includes('PlantUML') || 
+                content.includes('[From string') ||
+                content.includes('Syntax Error') ||
+                content.includes('line')
+              )) {
+                // 找到包含这个text的最近的g元素并移除
+                let parent = text.parentElement;
+                while (parent && parent.tagName !== 'g' && parent !== svg) {
+                  parent = parent.parentElement;
+                }
+                if (parent && parent !== svg) {
+                  parent.remove();
+                }
+              }
+            });
+            
+            // 移除包含错误信息的rect元素（黑色背景框）
+            const rects = svg.querySelectorAll('rect');
+            rects.forEach(rect => {
+              const fill = rect.getAttribute('fill');
+              // 移除黑色或深色背景的矩形（通常是错误框）
+              if (fill && (fill.includes('#000') || fill.includes('black') || fill === '#000000')) {
+                const siblings = rect.parentElement?.children;
+                if (siblings) {
+                  // 检查是否有相关的text元素
+                  Array.from(siblings).forEach(sibling => {
+                    if (sibling.tagName === 'text') {
+                      const content = sibling.textContent;
+                      if (content && (content.includes('PlantUML') || content.includes('Error'))) {
+                        rect.remove();
+                      }
+                    }
+                  });
+                }
+              }
+            });
+            
+            svgText = svg.outerHTML;
+          }
           
           // 创建div容器
           const container = document.createElement('div');

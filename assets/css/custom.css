@@ -240,3 +240,29 @@ blockquote {
   background-color: #0256c2;
 }
 
+/* ===== 宽屏满屏显示优化 ===== */
+@media (min-width: 50rem) {
+  /* 侧边栏固定280px宽度 */
+  .side-bar {
+    width: 280px !important;
+    max-width: 280px !important;
+  }
+  
+  /* 主内容区：移除宽度限制，充分利用剩余空间 */
+  .main {
+    margin-left: 280px !important;
+    max-width: none !important;
+  }
+  
+  /* 内容容器：移除所有宽度限制 */
+  .main-content-wrap,
+  .main-content {
+    max-width: none !important;
+  }
+}
+
+/* 代码块使用滚动条而不是换行 */
+pre.highlight {
+  overflow-x: auto;
+}
+
