@@ -123,13 +123,3 @@ Jira问题分析标准流程和最佳实践（踩坑经验总结）
 
 </div>
 
----
-
-<div class="text-center mt-4">
-  <p class="text-grey-dk-000">
-    本站使用 <a href="https://jekyllrb.com/">Jekyll</a> 和 <a href="https://just-the-docs.github.io/just-the-docs/">Just the Docs</a> 主题构建，部署在 GitHub Pages 上。
-  </p>
-  <p class="text-grey-dk-000">
-    如有问题或建议，欢迎<a href="https://github.com/xinlee0113/xinlee0113.github.io/issues">提交Issue</a>或直接联系我。
-  </p>
-</div>
