@@ -651,8 +651,10 @@ loop 遍历每个子节点
             :添加到父容器;
             if (父容器是PreferenceCategory?) then (是)
                 :PreferenceCategory.addPreference(preference);
-            else (是PreferenceScreen?)
-                :PreferenceScreen.addPreference(preference);
+            else (否)
+                if (父容器是PreferenceScreen?) then (是)
+                    :PreferenceScreen.addPreference(preference);
+                endif
             endif
         endif
     endif
