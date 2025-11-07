@@ -80,16 +80,16 @@ nav_order: 1
 - **必须分析的内容**：正常流程代码、异常流程代码、关键方法调用、生命周期方法、状态管理、数据流向
 - 如果涉及业务流程理解，参考PRD文档确认设计意图
 - **架构图输出要求（使用PlantUML，直接嵌入分析文档）**：
-  a) 流程时序图（Sequence Diagram）：展示模块交互、失败vs成功场景对比、修复前后对比
-  b) 类关系图（Class Diagram）：展示关键类关系和模块边界
-  c) 组件架构图（Component Diagram）：展示系统架构，包含数据流标注
-  d) 数据流图（Data Flow Diagram）：展示数据在系统中的流动路径
-  e) 控制流图（Control Flow Diagram）：展示程序执行的控制流程
-  f) 状态迁移图（State Diagram）：展示服务/组件状态转换
-  g) 线程模型图（Thread Model Diagram）：展示多线程交互和同步机制
-  h) 进程模型图（Process Model Diagram）：展示进程间通信和交互
-  i) 活动图（Activity Diagram）：展示判断流程、修复后流程
-  j) 模块依赖图（Package/Module Dependency）：展示模块间依赖关系
+  - **a) 流程时序图（Sequence Diagram）**：展示模块交互、失败vs成功场景对比、修复前后对比
+  - **b) 类关系图（Class Diagram）**：展示关键类关系和模块边界
+  - **c) 组件架构图（Component Diagram）**：展示系统架构，包含数据流标注
+  - **d) 数据流图（Data Flow Diagram）**：展示数据在系统中的流动路径
+  - **e) 控制流图（Control Flow Diagram）**：展示程序执行的控制流程
+  - **f) 状态迁移图（State Diagram）**：展示服务/组件状态转换
+  - **g) 线程模型图（Thread Model Diagram）**：展示多线程交互和同步机制
+  - **h) 进程模型图（Process Model Diagram）**：展示进程间通信和交互
+  - **i) 活动图（Activity Diagram）**：展示判断流程、修复后流程
+  - **j) 模块依赖图（Package/Module Dependency）**：展示模块间依赖关系
 
 #### 第9步：结构化日志分析并输出文档
 
