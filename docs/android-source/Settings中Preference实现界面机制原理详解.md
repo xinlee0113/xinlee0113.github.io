@@ -582,7 +582,9 @@ Preference通过XML文件进行声明式配置，XML结构如下：
 ### XML解析流程
 
 ```plantuml
-@startuml 活动图-XML解析流程
+@startuml
+title XML解析流程
+
 start
 
 :调用addPreferencesFromResource(R.xml.xxx);
@@ -609,47 +611,49 @@ loop 遍历每个子节点
     if (节点是PreferenceCategory?) then (是)
         :创建PreferenceCategory实例;
         :递归解析Category的子节点;
-    else (是Preference节点?)
-        :获取Preference类名;
-        if (是自定义Preference?) then (是)
-            :使用自定义类名创建实例;
+    else (否)
+        if (是Preference节点?) then (是)
+            :获取Preference类名;
+            if (是自定义Preference?) then (是)
+                :使用自定义类名创建实例;
+                note right
+                    例如：com.android.provision.widget.CtaPreference
+                end note
+            else (否)
+                :使用默认Preference类创建实例;
+                note right
+                    根据标签名确定类型：
+                    - CheckBoxPreference
+                    - ListPreference
+                    - EditTextPreference
+                    等
+                end note
+            endif
+            
+            :解析Preference属性;
             note right
-                例如：com.android.provision.widget.CtaPreference
-            end note
-        else (否)
-            :使用默认Preference类创建实例;
-            note right
-                根据标签名确定类型：
-                - CheckBoxPreference
-                - ListPreference
-                - EditTextPreference
+                解析的属性包括：
+                - android:key
+                - android:title
+                - android:summary
+                - android:defaultValue
+                - android:entries
+                - android:entryValues
                 等
             end note
-        endif
-        
-        :解析Preference属性;
-        note right
-            解析的属性包括：
-            - android:key
-            - android:title
-            - android:summary
-            - android:defaultValue
-            - android:entries
-            - android:entryValues
-            等
-        end note
-        
-        :设置Preference属性;
-        :调用Preference.setKey(key);
-        :调用Preference.setTitle(title);
-        :调用Preference.setSummary(summary);
-        :调用Preference.setDefaultValue(defaultValue);
-        
-        :添加到父容器;
-        if (父容器是PreferenceCategory?) then (是)
-            :PreferenceCategory.addPreference(preference);
-        else (是PreferenceScreen?)
-            :PreferenceScreen.addPreference(preference);
+            
+            :设置Preference属性;
+            :调用Preference.setKey(key);
+            :调用Preference.setTitle(title);
+            :调用Preference.setSummary(summary);
+            :调用Preference.setDefaultValue(defaultValue);
+            
+            :添加到父容器;
+            if (父容器是PreferenceCategory?) then (是)
+                :PreferenceCategory.addPreference(preference);
+            else (是PreferenceScreen?)
+                :PreferenceScreen.addPreference(preference);
+            endif
         endif
     endif
 endloop
