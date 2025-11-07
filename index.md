@@ -13,7 +13,7 @@ permalink: /
 {: .fs-6 .fw-300 }
 
 [开始学习](#快速导航){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
-[查看源码](https://github.com/your-username/your-repo){: .btn .fs-5 .mb-4 .mb-md-0 }
+[查看源码](https://android.googlesource.com/){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
