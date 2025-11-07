@@ -1,6 +1,6 @@
 # Jekyll配置文件
-title: Android源码学习文档站
-description: Android源码分析、学习笔记、技术文档
+title: 李新的技术博客
+description: 一个Android开发者的技术笔记与生活碎碎念
 baseurl: "" # username.github.io 格式，baseurl留空
 url: "https://xinlee0113.github.io" # GitHub Pages URL
 
@@ -11,8 +11,8 @@ theme: just-the-docs
 
 # 网站作者
 author: 
-  name: "Your Name"
-  email: "your.email@example.com"
+  name: "李新"
+  email: "xinlee0113@gmail.com"
 
 # Markdown处理器
 markdown: kramdown

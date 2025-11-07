@@ -301,3 +301,143 @@ pre.highlight {
   overflow-x: auto;
 }
 
+/* ===== 个人信息卡片样式 ===== */
+.personal-info-card {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e1e4e8;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.personal-info-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.personal-info-content {
+  color: #24292e;
+}
+
+.personal-info-content strong {
+  color: #0366d6;
+  font-size: 1rem;
+}
+
+.personal-info-content a {
+  color: #586069;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.personal-info-content a:hover {
+  color: #0366d6;
+  text-decoration: underline;
+}
+
+/* 响应式：小屏幕时隐藏个人信息卡片 */
+@media (max-width: 50rem) {
+  .personal-info-card {
+    display: none;
+  }
+}
+
+/* ===== 关于我区域样式 ===== */
+.about-me-section {
+  background: linear-gradient(135deg, #f6f8fa 0%, #ffffff 100%);
+  border-left: 4px solid #0366d6;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.about-me-section p {
+  margin-bottom: 1rem;
+}
+
+.about-me-section ul {
+  margin-left: 1.5rem;
+}
+
+.about-me-section li {
+  margin-bottom: 0.5rem;
+}
+
+/* ===== 联系方式区域样式 ===== */
+.contact-section {
+  background: #f6f8fa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #e1e4e8;
+}
+
+.contact-section a {
+  color: #0366d6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact-section a:hover {
+  text-decoration: underline;
+}
+
+/* ===== 首页标题样式优化 ===== */
+.main-content h1.fs-9 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+}
+
+/* ===== 按钮样式增强 ===== */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== 代码示例区域样式 ===== */
+.code-example {
+  background: #f6f8fa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #e1e4e8;
+}
+
+.code-example h3 {
+  margin-top: 0;
+  color: #24292e;
+}
+
+.code-example ul {
+  margin-bottom: 1.5rem;
+}
+
+.code-example li {
+  margin-bottom: 0.75rem;
+}
+
+.code-example a {
+  color: #0366d6;
+  font-weight: 500;
+}
+
+.code-example a:hover {
+  text-decoration: underline;
+}
+
