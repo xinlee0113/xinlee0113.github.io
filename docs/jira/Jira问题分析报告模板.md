@@ -1,3 +1,10 @@
+---
+layout: default
+title: Jira问题分析报告模板
+parent: 问题分析
+nav_order: 2
+---
+
 # {Jira单号} {问题标题}问题分析
 
 ## 第一阶段：信息收集
@@ -46,24 +53,12 @@
 
 ### 1.3 附件信息
 
-**文件存放规范**：
-- 所有日志和视频文件统一存放在 `logs/` 目录下
-- 每个问题单独创建一个文件夹，命名格式：`{Jira单号}_files_{日期}`
-- 示例：`BUGOS2-589711_files_20251103`
-- 文件夹内可进一步分类：
-  - `bugreport/`：存放bugreport日志文件
-  - `logcat/`：存放logcat日志文件
-  - `video/`：存放视频文件
-  - `frames/`：存放视频提取的关键帧截图
-  - `screenshots/`：存放截图文件
-
-**附件列表**：
-1. **视频文件**：`logs/{Jira单号}_files_{日期}/video/{视频文件名}`（{文件大小}）
+1. **视频文件**：{视频文件名}（{文件大小}）
 2. **截图文件**：
-   - `logs/{Jira单号}_files_{日期}/screenshots/{截图文件名1}`
-   - `logs/{Jira单号}_files_{日期}/screenshots/{截图文件名2}`
+   - {截图文件名1}
+   - {截图文件名2}
    - ...（根据实际情况添加）
-3. **日志文件**：`logs/{Jira单号}_files_{日期}/bugreport/{日志文件名}`（{文件大小}）
+3. **日志文件**：{日志文件名}（{文件大小}）
 4. **Kpan日志链接**：{Kpan链接}（密码：{密码}）
 5. **提效工具日志**：{提效工具日志链接}（如有）
 
@@ -71,16 +66,12 @@
 
 使用ffmpeg从视频中提取关键帧，逐帧分析如下：
 
-**文件存放规范**：
-- 关键帧截图存放在 `logs/{Jira单号}_files_{日期}/frames/` 目录下
-- 截图命名建议：`frame_{时间秒数}.png`，如 `frame_03.png` 表示第3秒的帧
-
 **帧X（X秒）**：
-![关键帧X截图](logs/{Jira单号}_files_{日期}/frames/frame_X.png)
+![关键帧X截图]({截图路径}/frame_X.png)
 {描述该帧显示的内容和问题现象}
 
 **帧Y（Y秒）**：
-![关键帧Y截图](logs/{Jira单号}_files_{日期}/frames/frame_Y.png)
+![关键帧Y截图]({截图路径}/frame_Y.png)
 {描述该帧显示的内容和问题现象}
 
 ...（根据实际情况添加更多关键帧分析）
@@ -395,13 +386,13 @@ end note
 @startuml
 title {状态迁移图}
 
-[*] -> State1
-State1 -> State2 : {触发条件1}
-State2 -> State3 : {触发条件2}
-State3 -> State1 : {触发条件3}
-State2 -> [*] : {结束条件}
+[*] -> {状态1}
+{状态1} -> {状态2} : {触发条件1}
+{状态2} -> {状态3} : {触发条件2}
+{状态3} -> {状态1} : {触发条件3}
+{状态2} -> [*] : {结束条件}
 
-note right of State2
+note right of {状态2}
   {状态说明}
 end note
 
@@ -499,25 +490,25 @@ stop
 @startuml
 title {模块依赖关系图}
 
-package "模块A" as ModuleA {
-  class ClassA1
-  class ClassA2
+package "{模块A}" {
+  [类A1]
+  [类A2]
 }
 
-package "模块B" as ModuleB {
-  class ClassB1
-  class ClassB2
+package "{模块B}" {
+  [类B1]
+  [类B2]
 }
 
-package "模块C" as ModuleC {
-  class ClassC1
+package "{模块C}" {
+  [类C1]
 }
 
-ModuleA --> ModuleB : 依赖
-ModuleB --> ModuleC : 依赖
-ModuleA ..> ModuleC : 间接依赖
+{模块A} --> {模块B} : 依赖
+{模块B} --> {模块C} : 依赖
+{模块A} ..> {模块C} : 间接依赖
 
-note right of ModuleA
+note right of {模块A}
   {模块说明}
 end note
 

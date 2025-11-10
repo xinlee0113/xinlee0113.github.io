@@ -1,7 +1,7 @@
 <!-- PlantUML渲染工具 - 优先使用预渲染图片，回退到客户端渲染 -->
 <!-- 引入plantuml-encoder库用于客户端渲染（备用方案） -->
 <!-- 使用多个CDN备用，避免单点故障 -->
-<script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js" 
+<script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"
         onerror="this.onerror=null; this.src='https://unpkg.com/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js'"></script>
 <script>
   // 如果第一个CDN失败，尝试第二个CDN
@@ -78,7 +78,7 @@
         if (!pagePath) {
           pagePath = 'index';
         }
-        
+
         // 先解码URL编码（%E4%BA%8B -> 事），然后替换特殊字符
         // 这样与预渲染脚本保持一致（预渲染脚本从文件路径提取，文件路径是未编码的）
         try {
@@ -87,11 +87,11 @@
           // 如果解码失败，使用原始路径
           console.warn('[PlantUML] URL解码失败，使用原始路径:', e);
         }
-        
+
         // 将路径中的斜杠替换为下划线，用于文件名（与预渲染脚本保持一致）
         const pageName = pagePath.replace(/\//g, '_').replace(/[^a-zA-Z0-9_]/g, '_');
         const imagePath = `/plantuml-images/${pageName}_${index + 1}.svg`;
-        
+
         console.log(`[PlantUML] 尝试加载预渲染图片: ${imagePath}`);
         console.log(`[PlantUML] 页面路径: ${currentPath}`);
         console.log(`[PlantUML] 解码后路径: ${pagePath}`);
@@ -153,7 +153,7 @@
                 setTimeout(tryClientRender, 500);
               }
             };
-            
+
             // 立即尝试，如果失败则等待
             tryClientRender();
           } else {
