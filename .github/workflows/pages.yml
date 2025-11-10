@@ -45,12 +45,14 @@ jobs:
           echo "PLANTUML_JAR=$(pwd)/plantuml.jar" >> $GITHUB_ENV
 
       - name: Pre-render PlantUML diagrams
+        timeout-minutes: 30
         run: |
           chmod +x scripts/render-plantuml.sh
           export PLANTUML_JAR="$(pwd)/plantuml.jar"
           export OUTPUT_DIR="$(pwd)/_site/plantuml-images"
           export DOCS_DIR="$(pwd)/docs"
-          ./scripts/render-plantuml.sh
+          # 允许部分失败，继续构建
+          ./scripts/render-plantuml.sh || echo "警告: 部分PlantUML图表渲染失败，但继续构建"
 
       - name: Setup Pages
         id: pages

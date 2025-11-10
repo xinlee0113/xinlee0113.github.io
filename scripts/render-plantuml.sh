@@ -1,8 +1,10 @@
 #!/bin/bash
 # PlantUML预渲染脚本
 # 在构建时将所有PlantUML代码块渲染为SVG图片
+# 支持并发渲染和错误恢复
 
-set -e
+# 不设置set -e，允许部分失败继续执行
+set +e
 
 PLANTUML_JAR="${PLANTUML_JAR:-plantuml.jar}"
 OUTPUT_DIR="${OUTPUT_DIR:-_site/plantuml-images}"
@@ -19,6 +21,26 @@ echo "文档目录: $DOCS_DIR"
 # 计数器
 diagram_count=0
 file_count=0
+success_count=0
+fail_count=0
+
+# 检查PlantUML JAR是否存在
+if [ ! -f "$PLANTUML_JAR" ]; then
+    echo "错误: PlantUML JAR文件不存在: $PLANTUML_JAR"
+    exit 1
+fi
+
+# 验证Java是否可用
+if ! command -v java &> /dev/null; then
+    echo "错误: Java未安装或不在PATH中"
+    exit 1
+fi
+
+echo "验证PlantUML JAR..."
+java -jar "$PLANTUML_JAR" -version > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "警告: PlantUML JAR可能损坏，但继续尝试..."
+fi
 
 # 查找所有Markdown文件
 find "$DOCS_DIR" -name "*.md" -type f | while read -r md_file; do
@@ -61,6 +83,9 @@ pattern = r'```plantuml\s*\n(.*?)\n```'
 matches = re.findall(pattern, content, re.DOTALL)
 
 block_num = 0
+success_count = 0
+fail_count = 0
+
 for match in matches:
     block_num += 1
     plantuml_code = match.strip()
@@ -86,11 +111,12 @@ for match in matches:
             output_name = os.path.basename(output_file)
 
             # PlantUML会生成与输入文件同名的SVG文件
+            # 增加超时时间到60秒，并设置JVM内存限制
             result = subprocess.run(
-                ['java', '-jar', plantuml_jar, '-tsvg', temp_puml_path, '-o', output_dir],
+                ['java', '-Xmx512m', '-jar', plantuml_jar, '-tsvg', temp_puml_path, '-o', output_dir],
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=60
             )
 
             if result.returncode == 0:
@@ -104,6 +130,7 @@ for match in matches:
                     final_path = os.path.join(output_dir, output_name)
                     os.rename(temp_svg, final_path)
                     print(f"  ✓ 成功: {final_path}")
+                    success_count += 1
                 else:
                     # 尝试在输出目录中查找
                     if os.path.exists(output_dir):
@@ -114,21 +141,41 @@ for match in matches:
                                            key=os.path.getmtime)
                             os.rename(latest_svg, output_file)
                             print(f"  ✓ 成功: {output_file}")
+                            success_count += 1
                         else:
-                            print(f"  ✗ 失败: 未找到生成的SVG文件 (stderr: {result.stderr})")
+                            print(f"  ✗ 失败: 未找到生成的SVG文件")
+                            if result.stderr:
+                                print(f"    错误信息: {result.stderr[:200]}")
+                            fail_count += 1
                     else:
                         print(f"  ✗ 失败: 输出目录不存在: {output_dir}")
+                        fail_count += 1
             else:
-                print(f"  ✗ 失败: {result.stderr}")
+                print(f"  ✗ 失败: PlantUML渲染错误")
+                if result.stderr:
+                    print(f"    错误信息: {result.stderr[:200]}")
+                fail_count += 1
+        except subprocess.TimeoutExpired:
+            print(f"  ✗ 失败: 渲染超时（超过60秒）")
+            fail_count += 1
         except Exception as e:
             print(f"  ✗ 失败: {str(e)}")
+            fail_count += 1
         finally:
             # 清理临时文件
             if os.path.exists(temp_puml_path):
                 os.unlink(temp_puml_path)
+
+# 输出统计信息
+print(f"\n========== 文件统计 ==========")
+print(f"成功渲染: {success_count}")
+print(f"失败渲染: {fail_count}")
+print(f"================================")
 EOF
 
 done
 
 echo ""
-echo "预渲染完成！"
+echo "========== 预渲染完成 =========="
+echo "处理文件数: $file_count"
+echo "================================"
