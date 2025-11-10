@@ -55,8 +55,18 @@
         // 方案1：尝试使用预渲染的图片（如果存在）
         // 生成图片路径（基于当前页面路径）
         const currentPath = window.location.pathname;
-        const pageName = currentPath.split('/').pop().replace('.html', '') || 'index';
+        // 提取页面路径，例如 /docs/android-source/Android_Binder机制详解.html
+        // 转换为 android-source/Android_Binder机制详解
+        let pagePath = currentPath.replace(/^\/docs\//, '').replace(/\.html$/, '');
+        if (!pagePath) {
+          pagePath = 'index';
+        }
+
+        // 将路径中的斜杠替换为下划线，用于文件名
+        const pageName = pagePath.replace(/\//g, '_').replace(/[^a-zA-Z0-9_]/g, '_');
         const imagePath = `/plantuml-images/${pageName}_${index + 1}.svg`;
+
+        console.log(`[PlantUML] 尝试加载预渲染图片: ${imagePath} (页面路径: ${currentPath})`);
 
         // 先尝试加载预渲染的图片
         const img = document.createElement('img');
@@ -68,35 +78,53 @@
         img.style.margin = '20px auto';
 
         // 尝试加载预渲染图片
+        let fallbackAttempted = false;
         img.onerror = function() {
-          console.log(`[PlantUML] 预渲染图片不存在，使用客户端渲染: ${imagePath}`);
+          if (!fallbackAttempted) {
+            fallbackAttempted = true;
+            console.log(`[PlantUML] 预渲染图片不存在，使用客户端渲染: ${imagePath}`);
 
-          // 方案2：客户端渲染（备用方案）
-          if (typeof plantumlEncoder !== 'undefined') {
-            try {
-              const encoded = plantumlEncoder.encode(code);
-              const imgUrl = `https://www.plantuml.com/plantuml/svg/${encoded}`;
-              img.src = imgUrl;
-              img.onerror = function() {
-                showError(codeBlock, code, '客户端渲染失败');
+            // 方案2：客户端渲染（备用方案）
+            if (typeof plantumlEncoder !== 'undefined') {
+              try {
+                const encoded = plantumlEncoder.encode(code);
+                const imgUrl = `https://www.plantuml.com/plantuml/svg/${encoded}`;
+                console.log(`[PlantUML] 客户端渲染URL: ${imgUrl.substring(0, 100)}...`);
+                img.src = imgUrl;
+                
+                // 重置错误处理，避免无限循环
+                img.onerror = function() {
+                  console.error(`[PlantUML] 客户端渲染失败: ${imgUrl.substring(0, 100)}...`);
+                  showError(codeBlock, code, '客户端渲染失败（网络问题或PlantUML语法错误）');
+                  errorCount++;
+                  processedCount++;
+                  updateStats();
+                };
+                
+                img.onload = function() {
+                  console.log(`[PlantUML] 客户端渲染成功`);
+                  successCount++;
+                  processedCount++;
+                  updateStats();
+                };
+              } catch (e) {
+                console.error(`[PlantUML] 编码失败:`, e);
+                showError(codeBlock, code, `编码失败: ${e.message}`);
                 errorCount++;
                 processedCount++;
                 updateStats();
-              };
-              img.onload = function() {
-                console.log(`[PlantUML] 客户端渲染成功`);
-                successCount++;
-                processedCount++;
-                updateStats();
-              };
-            } catch (e) {
-              showError(codeBlock, code, e.message);
+              }
+            } else {
+              console.error(`[PlantUML] plantumlEncoder未加载`);
+              showError(codeBlock, code, 'plantumlEncoder未加载，请检查CDN连接');
               errorCount++;
               processedCount++;
               updateStats();
             }
           } else {
-            showError(codeBlock, code, 'plantumlEncoder未加载');
+            // 如果回退也失败了，显示错误
+            console.error(`[PlantUML] 预渲染和客户端渲染都失败`);
+            showError(codeBlock, code, '预渲染和客户端渲染都失败');
             errorCount++;
             processedCount++;
             updateStats();

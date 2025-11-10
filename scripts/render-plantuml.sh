@@ -24,16 +24,23 @@ file_count=0
 find "$DOCS_DIR" -name "*.md" -type f | while read -r md_file; do
     file_count=$((file_count + 1))
     echo "处理文件: $md_file"
-    
+
     # 提取文件的基础名称（用于生成唯一ID）
-    file_basename=$(basename "$md_file" .md | sed 's/[^a-zA-Z0-9]/_/g')
-    file_dir=$(dirname "$md_file" | sed "s|^$DOCS_DIR/||" | sed 's|[^a-zA-Z0-9/]|_|g')
-    
-    # 创建对应的输出目录
-    if [ -n "$file_dir" ]; then
-        mkdir -p "$OUTPUT_DIR/$file_dir"
+    # 获取相对于docs目录的路径，例如: android-source/Android_Binder机制详解.md
+    relative_path=$(echo "$md_file" | sed "s|^$DOCS_DIR/||")
+    file_dir=$(dirname "$relative_path")
+    file_basename=$(basename "$md_file" .md)
+
+    # 将路径转换为文件名格式（替换特殊字符为下划线）
+    if [ "$file_dir" = "." ]; then
+        page_name=$(echo "$file_basename" | sed 's/[^a-zA-Z0-9_]/_/g')
+    else
+        page_name=$(echo "${file_dir}/${file_basename}" | sed 's/[^a-zA-Z0-9_/]/_/g' | sed 's|/|_|g')
     fi
-    
+
+    # 创建输出目录（统一放在根目录）
+    mkdir -p "$OUTPUT_DIR"
+
     # 提取PlantUML代码块（使用Python脚本更可靠）
     python3 <<EOF
 import re
@@ -41,8 +48,7 @@ import sys
 import os
 
 md_file = "$md_file"
-file_basename = "$file_basename"
-file_dir = "$file_dir"
+page_name = "$page_name"
 output_dir = "$OUTPUT_DIR"
 plantuml_jar = "$PLANTUML_JAR"
 
@@ -58,48 +64,60 @@ block_num = 0
 for match in matches:
     block_num += 1
     plantuml_code = match.strip()
-    
+
     # 检查是否包含PlantUML标记
     if '@startuml' in plantuml_code or '@startmindmap' in plantuml_code or '@startwbs' in plantuml_code:
-        # 生成唯一文件名
-        if file_dir:
-            output_file = os.path.join(output_dir, file_dir, f"{file_basename}_{block_num}.svg")
-        else:
-            output_file = os.path.join(output_dir, f"{file_basename}_{block_num}.svg")
-        
+        # 生成唯一文件名（与客户端脚本匹配）
+        output_file = os.path.join(output_dir, f"{page_name}_{block_num}.svg")
+
         # 创建输出目录
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        
+
         # 创建临时PlantUML文件
         import tempfile
         with tempfile.NamedTemporaryFile(mode='w', suffix='.puml', delete=False) as temp_puml:
             temp_puml.write(plantuml_code)
             temp_puml_path = temp_puml.name
-        
+
         try:
-            # 渲染为SVG
+            # 渲染为SVG（使用-out参数指定输出文件名）
             import subprocess
+            output_dir = os.path.dirname(output_file)
+            output_name = os.path.basename(output_file)
+
+            # PlantUML会生成与输入文件同名的SVG文件
             result = subprocess.run(
-                ['java', '-jar', plantuml_jar, '-tsvg', temp_puml_path, '-o', os.path.dirname(output_file)],
+                ['java', '-jar', plantuml_jar, '-tsvg', temp_puml_path, '-o', output_dir],
                 capture_output=True,
                 text=True,
                 timeout=30
             )
-            
+
             if result.returncode == 0:
-                # 查找生成的SVG文件
+                # PlantUML生成的SVG文件名与输入文件相同（只是扩展名不同）
                 temp_svg = temp_puml_path.replace('.puml', '.svg')
+                temp_svg_name = os.path.basename(temp_svg)
+
+                # 查找生成的SVG文件
                 if os.path.exists(temp_svg):
-                    os.rename(temp_svg, output_file)
-                    print(f"  ✓ 成功: {output_file}")
+                    # 移动到目标位置
+                    final_path = os.path.join(output_dir, output_name)
+                    os.rename(temp_svg, final_path)
+                    print(f"  ✓ 成功: {final_path}")
                 else:
                     # 尝试在输出目录中查找
-                    generated_files = [f for f in os.listdir(os.path.dirname(output_file)) if f.endswith('.svg')]
-                    if generated_files:
-                        os.rename(os.path.join(os.path.dirname(output_file), generated_files[0]), output_file)
-                        print(f"  ✓ 成功: {output_file}")
+                    if os.path.exists(output_dir):
+                        generated_files = [f for f in os.listdir(output_dir) if f.endswith('.svg')]
+                        if generated_files:
+                            # 使用最新生成的SVG文件
+                            latest_svg = max([os.path.join(output_dir, f) for f in generated_files],
+                                           key=os.path.getmtime)
+                            os.rename(latest_svg, output_file)
+                            print(f"  ✓ 成功: {output_file}")
+                        else:
+                            print(f"  ✗ 失败: 未找到生成的SVG文件 (stderr: {result.stderr})")
                     else:
-                        print(f"  ✗ 失败: 未找到生成的SVG文件")
+                        print(f"  ✗ 失败: 输出目录不存在: {output_dir}")
             else:
                 print(f"  ✗ 失败: {result.stderr}")
         except Exception as e:
