@@ -5,11 +5,35 @@
   
   // 自动渲染页面中的PlantUML代码块
   document.addEventListener('DOMContentLoaded', function() {
-    // 查找所有标记为plantuml的代码块
-    const plantumlBlocks = document.querySelectorAll('code.language-plantuml');
+    // 查找所有标记为plantuml的代码块（支持多种选择器）
+    // 1. 查找 code.language-plantuml
+    // 2. 查找包含 @startuml 的代码块
+    // 3. 查找 pre > code 中包含 @startuml 的
+    let plantumlBlocks = document.querySelectorAll('code.language-plantuml');
+    
+    // 如果没找到，尝试查找包含 @startuml 的代码块
+    if (plantumlBlocks.length === 0) {
+      const allCodeBlocks = document.querySelectorAll('pre > code, code');
+      plantumlBlocks = Array.from(allCodeBlocks).filter(codeBlock => {
+        const text = codeBlock.textContent || '';
+        return text.includes('@startuml') || text.includes('@startmindmap') || text.includes('@startwbs');
+      });
+    }
+    
+    console.log(`找到 ${plantumlBlocks.length} 个PlantUML代码块`);
     
     plantumlBlocks.forEach(async function(codeBlock) {
       const code = codeBlock.textContent.trim();
+      
+      // 跳过空代码块
+      if (!code || code.length === 0) {
+        return;
+      }
+      
+      // 检查是否包含PlantUML标记
+      if (!code.includes('@startuml') && !code.includes('@startmindmap') && !code.includes('@startwbs')) {
+        return;
+      }
       
       try {
         // 使用Kroki的POST API（支持CORS）
@@ -84,9 +108,17 @@
           container.innerHTML = svgText;
           
           // 替换代码块为图表
-          const pre = codeBlock.parentNode;
+          // 查找包含代码块的pre元素
+          let pre = codeBlock.parentNode;
+          while (pre && pre.tagName !== 'PRE' && pre !== document.body) {
+            pre = pre.parentNode;
+          }
+          
           if (pre && pre.tagName === 'PRE') {
             pre.parentNode.replaceChild(container, pre);
+          } else {
+            // 如果找不到pre，直接替换code元素
+            codeBlock.parentNode.replaceChild(container, codeBlock);
           }
         } else {
           const errorText = await response.text();
@@ -107,10 +139,20 @@
           <p><small>服务器：<a href="https://kroki.io" target="_blank">Kroki.io</a></small></p>
         `;
         
-        const pre = codeBlock.parentNode;
+        // 查找包含代码块的pre元素
+        let pre = codeBlock.parentNode;
+        while (pre && pre.tagName !== 'PRE' && pre !== document.body) {
+          pre = pre.parentNode;
+        }
+        
         if (pre && pre.tagName === 'PRE') {
           pre.parentNode.replaceChild(errorDiv, pre);
+        } else {
+          // 如果找不到pre，直接替换code元素
+          codeBlock.parentNode.replaceChild(errorDiv, codeBlock);
         }
+        
+        console.error('PlantUML渲染失败:', error);
       }
     });
   });
