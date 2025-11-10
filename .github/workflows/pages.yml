@@ -26,22 +26,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'
           bundler-cache: true # 自动运行 bundle install 并缓存
-          
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download PlantUML
+        run: |
+          wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.7/plantuml-1.2024.7.jar -O plantuml.jar
+          echo "PLANTUML_JAR=$(pwd)/plantuml.jar" >> $GITHUB_ENV
+
+      - name: Pre-render PlantUML diagrams
+        run: |
+          chmod +x scripts/render-plantuml.sh
+          export PLANTUML_JAR="$(pwd)/plantuml.jar"
+          export OUTPUT_DIR="$(pwd)/_site/plantuml-images"
+          export DOCS_DIR="$(pwd)/docs"
+          ./scripts/render-plantuml.sh
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
-        
+
       - name: Build with Jekyll
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
-          
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
@@ -58,5 +77,3 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           token: ${{ github.token }}
-
-

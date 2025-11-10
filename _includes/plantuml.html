@@ -1,99 +1,13 @@
-<!-- PlantUML客户端渲染工具 - 使用PlantUML官方服务器（完全离线编码） -->
-<!-- 引入pako库用于数据压缩 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
+<!-- PlantUML渲染工具 - 优先使用预渲染图片，回退到客户端渲染 -->
+<!-- 引入plantuml-encoder库用于客户端渲染（备用方案） -->
+<script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
 
 <script>
-  // PlantUML官方服务器（支持GET请求，无需CORS）
-  const PLANTUML_SERVER = 'https://www.plantuml.com/plantuml';
-
-  // PlantUML编码函数（使用PlantUML官方编码算法）
-  function encodePlantUML(text) {
-    // 将文本转换为UTF-8字节数组
-    const utf8Bytes = new TextEncoder().encode(text);
-
-    // 使用pako进行deflate压缩（返回Uint8Array）
-    const compressed = pako.deflate(utf8Bytes, { level: 9 });
-
-    // Base64编码（使用PlantUML的特殊编码表）
-    const encoded = encode64(compressed);
-
-    // 添加~1前缀表示使用DEFLATE压缩
-    return '~1' + encoded;
-  }
-
-  // PlantUML Base64编码（使用特殊字符集）
-  function encode64(data) {
-    let r = "";
-    // data是Uint8Array，直接使用索引访问
-    for (let i = 0; i < data.length; i += 3) {
-      if (i + 2 >= data.length) {
-        // 剩余1-2个字节
-        if (i + 1 >= data.length) {
-          // 只有1个字节
-          r += append3bytes(data[i], 0, 0);
-        } else {
-          // 有2个字节
-          r += append3bytes(data[i], data[i + 1], 0);
-        }
-      } else {
-        // 有3个字节
-        r += append3bytes(data[i], data[i + 1], data[i + 2]);
-      }
-    }
-    return r;
-  }
-
-  function append3bytes(b1, b2, b3) {
-    const c1 = b1 >> 2;
-    const c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
-    const c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
-    const c4 = b3 & 0x3F;
-    let r = "";
-    r += encode6bit(c1 & 0x3F);
-    r += encode6bit(c2 & 0x3F);
-    r += encode6bit(c3 & 0x3F);
-    r += encode6bit(c4 & 0x3F);
-    return r;
-  }
-
-  function encode6bit(b) {
-    if (b < 10) {
-      return String.fromCharCode(48 + b);
-    }
-    b -= 10;
-    if (b < 26) {
-      return String.fromCharCode(65 + b);
-    }
-    b -= 26;
-    if (b < 26) {
-      return String.fromCharCode(97 + b);
-    }
-    b -= 26;
-    if (b === 0) {
-      return '-';
-    }
-    if (b === 1) {
-      return '_';
-    }
-    return '?';
-  }
-
   // 自动渲染页面中的PlantUML代码块
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('[PlantUML] 开始初始化（客户端渲染模式）...');
-    console.log('[PlantUML] 服务器地址:', PLANTUML_SERVER);
-
-    // 检查pako库是否加载
-    if (typeof pako === 'undefined') {
-      console.error('[PlantUML] pako库未加载，请检查CDN连接');
-      return;
-    }
-    console.log('[PlantUML] pako库已加载');
+    console.log('[PlantUML] 开始初始化...');
 
     // 查找所有标记为plantuml的代码块（支持多种选择器）
-    // 1. 查找 code.language-plantuml
-    // 2. 查找包含 @startuml 的代码块
-    // 3. 查找 pre > code 中包含 @startuml 的
     let plantumlBlocks = document.querySelectorAll('code.language-plantuml');
     console.log('[PlantUML] 通过 .language-plantuml 找到', plantumlBlocks.length, '个代码块');
 
@@ -104,21 +18,14 @@
       console.log('[PlantUML] 总共找到', allCodeBlocks.length, '个代码块');
       plantumlBlocks = Array.from(allCodeBlocks).filter(codeBlock => {
         const text = codeBlock.textContent || '';
-        const isPlantUML = text.includes('@startuml') || text.includes('@startmindmap') || text.includes('@startwbs');
-        if (isPlantUML) {
-          console.log('[PlantUML] 发现PlantUML代码块，前50字符:', text.substring(0, 50));
-        }
-        return isPlantUML;
+        return text.includes('@startuml') || text.includes('@startmindmap') || text.includes('@startwbs');
       });
     }
 
     console.log(`[PlantUML] 最终找到 ${plantumlBlocks.length} 个PlantUML代码块`);
 
     if (plantumlBlocks.length === 0) {
-      console.warn('[PlantUML] 未找到任何PlantUML代码块，请检查：');
-      console.warn('[PlantUML] 1. 代码块是否使用 ```plantuml 标记');
-      console.warn('[PlantUML] 2. 代码块是否包含 @startuml 标记');
-      console.warn('[PlantUML] 3. 页面是否已完全加载');
+      console.warn('[PlantUML] 未找到任何PlantUML代码块');
       return;
     }
 
@@ -129,79 +36,82 @@
 
     plantumlBlocks.forEach(function(codeBlock, index) {
       const code = codeBlock.textContent.trim();
-      console.log(`[PlantUML] 处理第 ${index + 1}/${plantumlBlocks.length} 个代码块，长度: ${code.length} 字符`);
 
       // 跳过空代码块
       if (!code || code.length === 0) {
-        console.warn(`[PlantUML] 代码块 ${index + 1} 为空，跳过`);
         processedCount++;
         return;
       }
 
       // 检查是否包含PlantUML标记
       if (!code.includes('@startuml') && !code.includes('@startmindmap') && !code.includes('@startwbs')) {
-        console.warn(`[PlantUML] 代码块 ${index + 1} 不包含PlantUML标记，跳过`);
         processedCount++;
         return;
       }
 
       try {
-        console.log(`[PlantUML] 代码块 ${index + 1} 开始编码...`);
-        const startTime = Date.now();
+        console.log(`[PlantUML] 处理第 ${index + 1}/${plantumlBlocks.length} 个代码块`);
 
-        // 编码PlantUML代码
-        const encoded = encodePlantUML(code);
-        const encodeTime = Date.now();
-        console.log(`[PlantUML] 代码块 ${index + 1} 编码完成，耗时: ${encodeTime - startTime}ms`);
-        console.log(`[PlantUML] 编码后长度: ${encoded.length} 字符`);
+        // 方案1：尝试使用预渲染的图片（如果存在）
+        // 生成图片路径（基于当前页面路径）
+        const currentPath = window.location.pathname;
+        const pageName = currentPath.split('/').pop().replace('.html', '') || 'index';
+        const imagePath = `/plantuml-images/${pageName}_${index + 1}.svg`;
 
-        // 构建图片URL（使用GET请求，无需CORS）
-        const imgUrl = `${PLANTUML_SERVER}/svg/${encoded}`;
-        console.log(`[PlantUML] 图片URL: ${imgUrl.substring(0, 100)}...`);
-
-        // 创建img元素
+        // 先尝试加载预渲染的图片
         const img = document.createElement('img');
         img.className = 'plantuml-diagram';
-        img.src = imgUrl;
         img.alt = 'PlantUML Diagram';
         img.style.maxWidth = '100%';
         img.style.height = 'auto';
         img.style.display = 'block';
         img.style.margin = '20px auto';
 
-        // 图片加载成功
+        // 尝试加载预渲染图片
+        img.onerror = function() {
+          console.log(`[PlantUML] 预渲染图片不存在，使用客户端渲染: ${imagePath}`);
+
+          // 方案2：客户端渲染（备用方案）
+          if (typeof plantumlEncoder !== 'undefined') {
+            try {
+              const encoded = plantumlEncoder.encode(code);
+              const imgUrl = `https://www.plantuml.com/plantuml/svg/${encoded}`;
+              img.src = imgUrl;
+              img.onerror = function() {
+                showError(codeBlock, code, '客户端渲染失败');
+                errorCount++;
+                processedCount++;
+                updateStats();
+              };
+              img.onload = function() {
+                console.log(`[PlantUML] 客户端渲染成功`);
+                successCount++;
+                processedCount++;
+                updateStats();
+              };
+            } catch (e) {
+              showError(codeBlock, code, e.message);
+              errorCount++;
+              processedCount++;
+              updateStats();
+            }
+          } else {
+            showError(codeBlock, code, 'plantumlEncoder未加载');
+            errorCount++;
+            processedCount++;
+            updateStats();
+          }
+        };
+
         img.onload = function() {
-          const loadTime = Date.now();
-          console.log(`[PlantUML] 代码块 ${index + 1} 图片加载成功，总耗时: ${loadTime - startTime}ms`);
+          console.log(`[PlantUML] 使用预渲染图片: ${imagePath}`);
           successCount++;
           processedCount++;
           updateStats();
         };
 
-        // 图片加载失败
-        img.onerror = function(error) {
-          console.error(`[PlantUML] 代码块 ${index + 1} 图片加载失败:`, error);
-          errorCount++;
-          processedCount++;
-
-          // 显示错误信息
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'plantuml-error';
-          errorDiv.innerHTML = `
-            <p><strong>⚠️ PlantUML图表渲染失败</strong></p>
-            <details open>
-              <summary>查看源代码</summary>
-              <pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-            </details>
-            <p><small>错误：图片加载失败</small></p>
-            <p><small>提示：检查PlantUML语法是否正确，或尝试刷新页面</small></p>
-            <p><small>服务器：<a href="${PLANTUML_SERVER}" target="_blank">PlantUML官方服务器</a></small></p>
-          `;
-
-          // 替换代码块
-          replaceCodeBlock(codeBlock, errorDiv);
-          updateStats();
-        };
+        // 先尝试预渲染图片
+        img.src = imagePath;
 
         // 替换代码块为图片
         replaceCodeBlock(codeBlock, img);
@@ -210,33 +120,13 @@
         errorCount++;
         processedCount++;
         console.error(`[PlantUML] 代码块 ${index + 1} 渲染失败:`, error);
-        console.error(`[PlantUML] 错误类型:`, error.constructor.name);
-        console.error(`[PlantUML] 错误消息:`, error.message);
-        console.error(`[PlantUML] 错误堆栈:`, error.stack);
-
-        // 显示错误信息
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'plantuml-error';
-        errorDiv.innerHTML = `
-          <p><strong>⚠️ PlantUML图表渲染失败</strong></p>
-          <details open>
-            <summary>查看源代码</summary>
-            <pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-          </details>
-          <p><small>错误：${error.message}</small></p>
-          <p><small>提示：检查PlantUML语法是否正确，或尝试刷新页面</small></p>
-          <p><small>服务器：<a href="${PLANTUML_SERVER}" target="_blank">PlantUML官方服务器</a></small></p>
-        `;
-
-        // 替换代码块
-        replaceCodeBlock(codeBlock, errorDiv);
+        showError(codeBlock, code, error.message);
         updateStats();
       }
     });
 
     // 替换代码块的辅助函数
     function replaceCodeBlock(codeBlock, replacement) {
-      // 查找包含代码块的pre元素
       let pre = codeBlock.parentNode;
       while (pre && pre.tagName !== 'PRE' && pre !== document.body) {
         pre = pre.parentNode;
@@ -245,9 +135,24 @@
       if (pre && pre.tagName === 'PRE') {
         pre.parentNode.replaceChild(replacement, pre);
       } else {
-        // 如果找不到pre，直接替换code元素
         codeBlock.parentNode.replaceChild(replacement, codeBlock);
       }
+    }
+
+    // 显示错误信息
+    function showError(codeBlock, code, errorMsg) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'plantuml-error';
+      errorDiv.innerHTML = `
+        <p><strong>⚠️ PlantUML图表渲染失败</strong></p>
+        <details open>
+          <summary>查看源代码</summary>
+          <pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+        </details>
+        <p><small>错误：${errorMsg}</small></p>
+        <p><small>提示：检查PlantUML语法是否正确</small></p>
+      `;
+      replaceCodeBlock(codeBlock, errorDiv);
     }
 
     // 更新统计信息
