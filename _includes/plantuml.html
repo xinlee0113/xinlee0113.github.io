@@ -2,40 +2,73 @@
 <script>
   // 使用Kroki.io服务（支持CORS，开源免费）
   const KROKI_SERVER = 'https://kroki.io';
-  
+
   // 自动渲染页面中的PlantUML代码块
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('[PlantUML] 开始初始化...');
+    console.log('[PlantUML] 服务器地址:', KROKI_SERVER);
+    
     // 查找所有标记为plantuml的代码块（支持多种选择器）
     // 1. 查找 code.language-plantuml
     // 2. 查找包含 @startuml 的代码块
     // 3. 查找 pre > code 中包含 @startuml 的
     let plantumlBlocks = document.querySelectorAll('code.language-plantuml');
-    
+    console.log('[PlantUML] 通过 .language-plantuml 找到', plantumlBlocks.length, '个代码块');
+
     // 如果没找到，尝试查找包含 @startuml 的代码块
     if (plantumlBlocks.length === 0) {
+      console.log('[PlantUML] 尝试查找包含 @startuml 的代码块...');
       const allCodeBlocks = document.querySelectorAll('pre > code, code');
+      console.log('[PlantUML] 总共找到', allCodeBlocks.length, '个代码块');
       plantumlBlocks = Array.from(allCodeBlocks).filter(codeBlock => {
         const text = codeBlock.textContent || '';
-        return text.includes('@startuml') || text.includes('@startmindmap') || text.includes('@startwbs');
+        const isPlantUML = text.includes('@startuml') || text.includes('@startmindmap') || text.includes('@startwbs');
+        if (isPlantUML) {
+          console.log('[PlantUML] 发现PlantUML代码块，前50字符:', text.substring(0, 50));
+        }
+        return isPlantUML;
       });
     }
-    
-    console.log(`找到 ${plantumlBlocks.length} 个PlantUML代码块`);
-    
-    plantumlBlocks.forEach(async function(codeBlock) {
+
+    console.log(`[PlantUML] 最终找到 ${plantumlBlocks.length} 个PlantUML代码块`);
+
+    if (plantumlBlocks.length === 0) {
+      console.warn('[PlantUML] 未找到任何PlantUML代码块，请检查：');
+      console.warn('[PlantUML] 1. 代码块是否使用 ```plantuml 标记');
+      console.warn('[PlantUML] 2. 代码块是否包含 @startuml 标记');
+      console.warn('[PlantUML] 3. 页面是否已完全加载');
+      return;
+    }
+
+    let processedCount = 0;
+    let successCount = 0;
+    let errorCount = 0;
+    const totalBlocks = plantumlBlocks.length;
+
+    plantumlBlocks.forEach(async function(codeBlock, index) {
       const code = codeBlock.textContent.trim();
-      
+      console.log(`[PlantUML] 处理第 ${index + 1}/${plantumlBlocks.length} 个代码块，长度: ${code.length} 字符`);
+
       // 跳过空代码块
       if (!code || code.length === 0) {
+        console.warn(`[PlantUML] 代码块 ${index + 1} 为空，跳过`);
         return;
       }
-      
+
       // 检查是否包含PlantUML标记
       if (!code.includes('@startuml') && !code.includes('@startmindmap') && !code.includes('@startwbs')) {
+        console.warn(`[PlantUML] 代码块 ${index + 1} 不包含PlantUML标记，跳过`);
         return;
       }
-      
+
       try {
+        console.log(`[PlantUML] 代码块 ${index + 1} 开始请求渲染...`);
+        console.log(`[PlantUML] 请求URL: ${KROKI_SERVER}/plantuml/svg`);
+        console.log(`[PlantUML] 请求方法: POST`);
+        console.log(`[PlantUML] 代码预览: ${code.substring(0, 100)}...`);
+        
+        const startTime = Date.now();
+        
         // 使用Kroki的POST API（支持CORS）
         const response = await fetch(`${KROKI_SERVER}/plantuml/svg`, {
           method: 'POST',
@@ -45,14 +78,21 @@
           body: code
         });
         
+        const endTime = Date.now();
+        console.log(`[PlantUML] 代码块 ${index + 1} 请求完成，耗时: ${endTime - startTime}ms`);
+        console.log(`[PlantUML] 响应状态: ${response.status} ${response.statusText}`);
+        console.log(`[PlantUML] 响应头:`, Object.fromEntries(response.headers.entries()));
+
         if (response.ok) {
+          console.log(`[PlantUML] 代码块 ${index + 1} 响应成功，开始解析SVG...`);
           let svgText = await response.text();
-          
+          console.log(`[PlantUML] 代码块 ${index + 1} SVG长度: ${svgText.length} 字符`);
+
           // 清理SVG中的错误信息和调试信息
           // 移除PlantUML版本信息和错误提示框
           const tempDiv = document.createElement('div');
           tempDiv.innerHTML = svgText;
-          
+
           // 查找SVG元素
           const svg = tempDiv.querySelector('svg');
           if (svg) {
@@ -62,7 +102,7 @@
               const content = text.textContent;
               // 移除版本信息、错误提示等
               if (content && (
-                content.includes('PlantUML') || 
+                content.includes('PlantUML') ||
                 content.includes('[From string') ||
                 content.includes('Syntax Error') ||
                 content.includes('line')
@@ -77,7 +117,7 @@
                 }
               }
             });
-            
+
             // 移除包含错误信息的rect元素（黑色背景框）
             const rects = svg.querySelectorAll('rect');
             rects.forEach(rect => {
@@ -98,33 +138,53 @@
                 }
               }
             });
-            
+
             svgText = svg.outerHTML;
           }
-          
+
           // 创建div容器
           const container = document.createElement('div');
           container.className = 'plantuml-diagram';
           container.innerHTML = svgText;
-          
+
           // 替换代码块为图表
           // 查找包含代码块的pre元素
           let pre = codeBlock.parentNode;
           while (pre && pre.tagName !== 'PRE' && pre !== document.body) {
             pre = pre.parentNode;
           }
-          
+
           if (pre && pre.tagName === 'PRE') {
             pre.parentNode.replaceChild(container, pre);
+            console.log(`[PlantUML] 代码块 ${index + 1} 渲染成功（替换PRE元素）`);
           } else {
             // 如果找不到pre，直接替换code元素
             codeBlock.parentNode.replaceChild(container, codeBlock);
+            console.log(`[PlantUML] 代码块 ${index + 1} 渲染成功（替换CODE元素）`);
           }
+          successCount++;
+          console.log(`[PlantUML] 代码块 ${index + 1} 渲染完成，成功数: ${successCount}/${processedCount}`);
         } else {
           const errorText = await response.text();
+          console.error(`[PlantUML] 代码块 ${index + 1} HTTP错误: ${response.status} ${response.statusText}`);
+          console.error(`[PlantUML] 错误响应内容:`, errorText.substring(0, 200));
           throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
         }
       } catch (error) {
+        errorCount++;
+        console.error(`[PlantUML] 代码块 ${index + 1} 渲染失败:`, error);
+        console.error(`[PlantUML] 错误类型:`, error.constructor.name);
+        console.error(`[PlantUML] 错误消息:`, error.message);
+        console.error(`[PlantUML] 错误堆栈:`, error.stack);
+        
+        // 检查是否是网络错误
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.error(`[PlantUML] 网络请求失败，可能原因：`);
+          console.error(`[PlantUML] 1. 网络连接问题`);
+          console.error(`[PlantUML] 2. CORS策略限制`);
+          console.error(`[PlantUML] 3. 服务器 ${KROKI_SERVER} 不可用`);
+          console.error(`[PlantUML] 4. 防火墙或代理阻止请求`);
+        }
         // 如果失败，显示错误信息
         const errorDiv = document.createElement('div');
         errorDiv.className = 'plantuml-error';
@@ -138,22 +198,37 @@
           <p><small>提示：检查PlantUML语法是否正确，或尝试刷新页面</small></p>
           <p><small>服务器：<a href="https://kroki.io" target="_blank">Kroki.io</a></small></p>
         `;
-        
+
         // 查找包含代码块的pre元素
         let pre = codeBlock.parentNode;
         while (pre && pre.tagName !== 'PRE' && pre !== document.body) {
           pre = pre.parentNode;
         }
-        
+
         if (pre && pre.tagName === 'PRE') {
           pre.parentNode.replaceChild(errorDiv, pre);
         } else {
           // 如果找不到pre，直接替换code元素
           codeBlock.parentNode.replaceChild(errorDiv, codeBlock);
         }
-        
-        console.error('PlantUML渲染失败:', error);
+
+        console.error(`[PlantUML] 代码块 ${index + 1} 最终失败，错误数: ${errorCount}/${processedCount}`);
       }
+      
+      // 更新统计
+      processedCount++;
+      
+      // 所有代码块处理完成后输出统计（使用延迟检查）
+      setTimeout(() => {
+        if (processedCount === totalBlocks) {
+          console.log(`[PlantUML] ========== 渲染统计 ==========`);
+          console.log(`[PlantUML] 总代码块数: ${totalBlocks}`);
+          console.log(`[PlantUML] 已处理: ${processedCount}`);
+          console.log(`[PlantUML] 成功: ${successCount}`);
+          console.log(`[PlantUML] 失败: ${errorCount}`);
+          console.log(`[PlantUML] =============================`);
+        }
+      }, 1000);
     });
   });
 </script>
@@ -171,11 +246,11 @@
     background-color: #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
-  
+
   .plantuml-diagram:hover {
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
-  
+
   /* PlantUML错误提示样式 */
   .plantuml-error {
     margin: 20px auto;
@@ -185,7 +260,7 @@
     background-color: #fff5f5;
     color: #c92a2a;
   }
-  
+
   .plantuml-error details {
     margin-top: 10px;
     padding: 10px;
@@ -193,13 +268,13 @@
     border: 1px solid #ffe0e0;
     border-radius: 4px;
   }
-  
+
   .plantuml-error summary {
     cursor: pointer;
     color: #c92a2a;
     font-weight: bold;
   }
-  
+
   .plantuml-error pre {
     margin: 10px 0 0 0;
     padding: 10px;
@@ -207,11 +282,9 @@
     border-radius: 4px;
     overflow-x: auto;
   }
-  
+
   .plantuml-error code {
     font-family: 'Courier New', monospace;
     font-size: 0.9em;
   }
 </style>
-
-
