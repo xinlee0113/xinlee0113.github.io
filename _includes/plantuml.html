@@ -62,11 +62,13 @@
           pagePath = 'index';
         }
 
-        // 将路径中的斜杠替换为下划线，用于文件名
+        // 将路径中的斜杠替换为下划线，用于文件名（与预渲染脚本保持一致）
         const pageName = pagePath.replace(/\//g, '_').replace(/[^a-zA-Z0-9_]/g, '_');
         const imagePath = `/plantuml-images/${pageName}_${index + 1}.svg`;
-
-        console.log(`[PlantUML] 尝试加载预渲染图片: ${imagePath} (页面路径: ${currentPath})`);
+        
+        console.log(`[PlantUML] 尝试加载预渲染图片: ${imagePath}`);
+        console.log(`[PlantUML] 页面路径: ${currentPath}`);
+        console.log(`[PlantUML] 页面名: ${pageName}`);
 
         // 先尝试加载预渲染的图片
         const img = document.createElement('img');
@@ -79,10 +81,12 @@
 
         // 尝试加载预渲染图片
         let fallbackAttempted = false;
-        img.onerror = function() {
+        img.onerror = function(event) {
           if (!fallbackAttempted) {
             fallbackAttempted = true;
-            console.log(`[PlantUML] 预渲染图片不存在，使用客户端渲染: ${imagePath}`);
+            console.warn(`[PlantUML] 预渲染图片加载失败: ${imagePath}`);
+            console.warn(`[PlantUML] 错误事件:`, event);
+            console.log(`[PlantUML] 尝试使用客户端渲染作为备用方案...`);
 
             // 方案2：客户端渲染（备用方案）
             if (typeof plantumlEncoder !== 'undefined') {
@@ -91,7 +95,7 @@
                 const imgUrl = `https://www.plantuml.com/plantuml/svg/${encoded}`;
                 console.log(`[PlantUML] 客户端渲染URL: ${imgUrl.substring(0, 100)}...`);
                 img.src = imgUrl;
-                
+
                 // 重置错误处理，避免无限循环
                 img.onerror = function() {
                   console.error(`[PlantUML] 客户端渲染失败: ${imgUrl.substring(0, 100)}...`);
@@ -100,7 +104,7 @@
                   processedCount++;
                   updateStats();
                 };
-                
+
                 img.onload = function() {
                   console.log(`[PlantUML] 客户端渲染成功`);
                   successCount++;

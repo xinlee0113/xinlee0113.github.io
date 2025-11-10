@@ -53,12 +53,18 @@ find "$DOCS_DIR" -name "*.md" -type f | while read -r md_file; do
     file_dir=$(dirname "$relative_path")
     file_basename=$(basename "$md_file" .md)
 
-    # 将路径转换为文件名格式（替换特殊字符为下划线）
+    # 将路径转换为文件名格式（与客户端脚本保持一致）
+    # 客户端脚本逻辑：pagePath.replace(/\//g, '_').replace(/[^a-zA-Z0-9_]/g, '_')
     if [ "$file_dir" = "." ]; then
+        # 如果文件在docs根目录
         page_name=$(echo "$file_basename" | sed 's/[^a-zA-Z0-9_]/_/g')
     else
-        page_name=$(echo "${file_dir}/${file_basename}" | sed 's/[^a-zA-Z0-9_/]/_/g' | sed 's|/|_|g')
+        # 如果文件在子目录，先合并路径再替换
+        page_path="${file_dir}/${file_basename}"
+        page_name=$(echo "$page_path" | sed 's|/|_|g' | sed 's/[^a-zA-Z0-9_]/_/g')
     fi
+    
+    echo "  生成页面名: $page_name (文件: $relative_path)"
 
     # 创建输出目录（统一放在根目录）
     mkdir -p "$OUTPUT_DIR"
