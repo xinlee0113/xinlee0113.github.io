@@ -147,13 +147,15 @@
                 processedCount++;
                 updateStats();
               }
-            } else {
-              console.error(`[PlantUML] plantumlEncoder未加载`);
-              showError(codeBlock, code, 'plantumlEncoder未加载，请检查CDN连接');
-              errorCount++;
-              processedCount++;
-              updateStats();
-            }
+              } else {
+                // 如果plantumlEncoder还未加载，等待一下再试
+                console.log(`[PlantUML] plantumlEncoder未加载，等待500ms后重试...`);
+                setTimeout(tryClientRender, 500);
+              }
+            };
+            
+            // 立即尝试，如果失败则等待
+            tryClientRender();
           } else {
             // 如果回退也失败了，显示错误
             console.error(`[PlantUML] 预渲染和客户端渲染都失败`);
