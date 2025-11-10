@@ -63,7 +63,7 @@ find "$DOCS_DIR" -name "*.md" -type f | while read -r md_file; do
         page_path="${file_dir}/${file_basename}"
         page_name=$(echo "$page_path" | sed 's|/|_|g' | sed 's/[^a-zA-Z0-9_]/_/g')
     fi
-    
+
     echo "  生成页面名: $page_name (文件: $relative_path)"
 
     # 创建输出目录（统一放在根目录）
@@ -118,48 +118,63 @@ for match in matches:
 
             # PlantUML会生成与输入文件同名的SVG文件
             # 增加超时时间到60秒，并设置JVM内存限制
+            # 使用 -o 参数指定输出目录，PlantUML会在该目录生成SVG文件
             result = subprocess.run(
                 ['java', '-Xmx512m', '-jar', plantuml_jar, '-tsvg', temp_puml_path, '-o', output_dir],
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
+                cwd=os.path.dirname(temp_puml_path)  # 设置工作目录
             )
 
             if result.returncode == 0:
-                # PlantUML生成的SVG文件名与输入文件相同（只是扩展名不同）
-                temp_svg = temp_puml_path.replace('.puml', '.svg')
-                temp_svg_name = os.path.basename(temp_svg)
+                # PlantUML使用 -o 参数时，会在输出目录生成SVG文件
+                # 文件名基于输入文件名（临时文件名）
+                temp_svg_basename = os.path.basename(temp_puml_path).replace('.puml', '.svg')
 
-                # 查找生成的SVG文件
-                if os.path.exists(temp_svg):
+                # 查找生成的SVG文件（可能在输出目录或临时目录）
+                found_svg = None
+
+                # 1. 先检查输出目录
+                output_svg = os.path.join(output_dir, temp_svg_basename)
+                if os.path.exists(output_svg):
+                    found_svg = output_svg
+                else:
+                    # 2. 检查临时目录（PlantUML可能在工作目录生成）
+                    temp_svg = os.path.join(os.path.dirname(temp_puml_path), temp_svg_basename)
+                    if os.path.exists(temp_svg):
+                        found_svg = temp_svg
+                    else:
+                        # 3. 在输出目录中查找所有SVG文件（可能是其他名称）
+                        if os.path.exists(output_dir):
+                            generated_files = [f for f in os.listdir(output_dir) if f.endswith('.svg')]
+                            if generated_files:
+                                # 使用最新生成的SVG文件
+                                found_svg = max([os.path.join(output_dir, f) for f in generated_files],
+                                               key=os.path.getmtime)
+
+                if found_svg and os.path.exists(found_svg):
                     # 移动到目标位置
                     final_path = os.path.join(output_dir, output_name)
-                    os.rename(temp_svg, final_path)
+                    if found_svg != final_path:
+                        os.rename(found_svg, final_path)
                     print(f"  ✓ 成功: {final_path}")
                     success_count += 1
                 else:
-                    # 尝试在输出目录中查找
-                    if os.path.exists(output_dir):
-                        generated_files = [f for f in os.listdir(output_dir) if f.endswith('.svg')]
-                        if generated_files:
-                            # 使用最新生成的SVG文件
-                            latest_svg = max([os.path.join(output_dir, f) for f in generated_files],
-                                           key=os.path.getmtime)
-                            os.rename(latest_svg, output_file)
-                            print(f"  ✓ 成功: {output_file}")
-                            success_count += 1
-                        else:
-                            print(f"  ✗ 失败: 未找到生成的SVG文件")
-                            if result.stderr:
-                                print(f"    错误信息: {result.stderr[:200]}")
-                            fail_count += 1
-                    else:
-                        print(f"  ✗ 失败: 输出目录不存在: {output_dir}")
-                        fail_count += 1
+                    print(f"  ✗ 失败: 未找到生成的SVG文件")
+                    print(f"    查找路径: {output_svg}")
+                    print(f"    临时路径: {temp_svg}")
+                    if result.stderr:
+                        print(f"    错误信息: {result.stderr[:200]}")
+                    if result.stdout:
+                        print(f"    输出信息: {result.stdout[:200]}")
+                    fail_count += 1
             else:
-                print(f"  ✗ 失败: PlantUML渲染错误")
+                print(f"  ✗ 失败: PlantUML渲染错误 (返回码: {result.returncode})")
                 if result.stderr:
                     print(f"    错误信息: {result.stderr[:200]}")
+                if result.stdout:
+                    print(f"    输出信息: {result.stdout[:200]}")
                 fail_count += 1
         except subprocess.TimeoutExpired:
             print(f"  ✗ 失败: 渲染超时（超过60秒）")
